@@ -6,11 +6,13 @@ package database
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type Querier interface {
 	CreateEvent(ctx context.Context, arg CreateEventParams) error
-	FindOrCreateUser(ctx context.Context, email string) error
+	FindOrCreateUser(ctx context.Context, email string) (uuid.UUID, error)
 }
 
 var _ Querier = (*Queries)(nil)

@@ -2,12 +2,12 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE users (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  tracking_id UUID DEFAULT uuid_generate_v4(),
+  tracking_id UUID DEFAULT uuid_generate_v4() UNIQUE,
   email VARCHAR(255) NOT NULL UNIQUE
 );
 
 CREATE TABLE events (
-  id UUID DEFAULT uuid_geenrate_v4() PRIMARY KEY,
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   tracking_id UUID,
   visitor_id VARCHAR(64) NOT NULL,
   event_type VARCHAR(50) NOT NULL,

@@ -8,6 +8,7 @@ package database
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -44,7 +45,7 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error 
 	return err
 }
 
-const findOrCreateUser = `-- name: FindOrCreateUser :exec
+const findOrCreateUser = `-- name: FindOrCreateUser :one
 INSERT INTO users (
   email
 ) VALUES ( $1 )
@@ -53,7 +54,9 @@ SET email = EXCLUDED.email
 RETURNING id
 `
 
-func (q *Queries) FindOrCreateUser(ctx context.Context, email string) error {
-	_, err := q.db.Exec(ctx, findOrCreateUser, email)
-	return err
+func (q *Queries) FindOrCreateUser(ctx context.Context, email string) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, findOrCreateUser, email)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
 }

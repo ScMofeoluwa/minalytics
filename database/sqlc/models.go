@@ -5,11 +5,12 @@
 package database
 
 import (
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Event struct {
-	ID              pgtype.UUID      `json:"id"`
+	ID              uuid.UUID        `json:"id"`
 	TrackingID      pgtype.UUID      `json:"tracking_id"`
 	VisitorID       string           `json:"visitor_id"`
 	EventType       string           `json:"event_type"`
@@ -23,7 +24,7 @@ type Event struct {
 }
 
 type User struct {
-	ID         pgtype.UUID `json:"id"`
+	ID         uuid.UUID   `json:"id"`
 	TrackingID pgtype.UUID `json:"tracking_id"`
 	Email      string      `json:"email"`
 }
