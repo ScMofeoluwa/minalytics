@@ -1,11 +1,15 @@
 package main
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"html/template"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/markbates/goth/gothic"
+
+	"github.com/ScMofeoluwa/minalytics/types"
 )
 
 type AnalyticsHandler struct {
@@ -59,4 +63,34 @@ func (h *AnalyticsHandler) Callback(ctx *gin.Context) {
 		"message":     "login successful",
 		"accessToken": token,
 	})
+}
+
+func (h *AnalyticsHandler) TrackEvent(ctx *gin.Context) {
+	encodedData := ctx.Query("data")
+	decodedData, err := base64.StdEncoding.DecodeString(encodedData)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid base64 data"})
+		return
+	}
+
+	var payload types.EventPayload
+	if err := json.Unmarshal(decodedData, &payload); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid JSON data"})
+		return
+	}
+
+	remoteAddr := ctx.ClientIP()
+	geoLocation, err := h.service.ResolveGeoLocation(remoteAddr)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to resolve geolocation"})
+		return
+	}
+
+	payload.Tracking.Country = geoLocation.Country
+	if err := h.service.TrackEvent(ctx, payload); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "event tracked successfully"})
 }

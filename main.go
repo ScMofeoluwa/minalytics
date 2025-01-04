@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/google"
+	"github.com/oschwald/geoip2-golang"
 	"github.com/spf13/viper"
 
 	database "github.com/ScMofeoluwa/minalytics/database/sqlc"
@@ -28,6 +29,12 @@ func main() {
 	),
 	)
 
+	geoDB, err := geoip2.Open("database/GeoLite2-City.mmdb")
+	if err != nil {
+		log.Fatalf("Failed to open GeoIP2 database: %v", err)
+	}
+	defer geoDB.Close()
+
 	connPool, err := pgxpool.New(context.Background(), viper.GetString("DATABASE_URL"))
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
@@ -35,13 +42,14 @@ func main() {
 	defer connPool.Close()
 
 	queries := database.New(connPool)
-	analyticsService := NewAnalyticsService(queries)
+	analyticsService := NewAnalyticsService(queries, geoDB)
 	analyticsHandler := NewAnalyticsHandler(analyticsService)
 
 	r := gin.Default()
 	r.GET("/", analyticsHandler.Home)
 	r.GET("/auth/:provider", analyticsHandler.SignIn)
 	r.GET("/auth/:provider/callback", analyticsHandler.Callback)
+	r.GET("/track", analyticsHandler.TrackEvent)
 
 	port := viper.GetString("PORT")
 	log.Printf("listening on port: %s\n", port)
