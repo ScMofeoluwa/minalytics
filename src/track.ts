@@ -3,6 +3,7 @@ import { createHash } from "crypto";
 interface ITrackingData {
   url?: string;
   visitorId: string,
+  trackingId: string,
   referrer: string | null,
   ua: string,
   details?: Record<string, any>
@@ -15,9 +16,14 @@ interface EventPayload {
 
 class Analytics {
   private visitorId: string;
+  private trackingId: string;
   private referrer: string | null;
 
-  constructor(){
+  constructor(trackingId: string){
+    if (!trackingId) {
+      throw new Error("Tracking ID is required")
+    }
+    this.trackingId = trackingId
     this.visitorId = this.generateDailyVisitorHash()
     this.referrer = this.getReferrer()
   }
@@ -25,6 +31,7 @@ class Analytics {
   public track(type: string = 'pageview', details?: Record<string, any>) {
     const trackingData: ITrackingData = {
       visitorId: this.visitorId,
+      trackingId: this.trackingId,
       referrer: this.referrer,
       ua: navigator.userAgent,
     }
@@ -69,16 +76,14 @@ class Analytics {
   }
 
   private generateDailyVisitorHash(): string{
-    const components = [
-      navigator.userAgent,
-      new Date().toDateString()
-    ].join("|")
+    const uaHash = this.createHash(navigator.userAgent)
+    const components = [ uaHash, new Date().toLocaleDateString()].join("|")
 
     return this.createHash(components)
   }
 
   private createHash(input: string): string{
-    return createHash('sha1').update(input).digest('hex')
+    return createHash('sha256').update(input).digest('hex')
   }
 
   private getReferrer() {
@@ -91,12 +96,23 @@ class Analytics {
     const url = `http://localhost:3000/track?data=${btoa(s)}`
 
     const img = new Image()
+    img.onerror = () => {
+      console.error("Failed to send analytics data")
+      return
+    }
+
     img.src = url;
   }
 }
 
-((w,d) => {
-  const analytics = new Analytics()
+((w: any,d: Document) => {
+  const script = d.currentScript as HTMLScriptElement
+  const trackingId = script?.getAttribute("tracking-id")
+  if (!trackingId){
+    console.error("Analytics: No tracking ID provided")
+    return
+  }
+  const analytics = new Analytics(trackingId as string)
   analytics.track()
   analytics.trackSubsequentPages()
 
