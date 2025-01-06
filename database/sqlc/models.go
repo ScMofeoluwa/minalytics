@@ -5,9 +5,10 @@
 package database
 
 import (
+	"time"
+
 	types "github.com/ScMofeoluwa/minalytics/types"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Event struct {
@@ -22,7 +23,7 @@ type Event struct {
 	Device          string             `json:"device"`
 	OperatingSystem string             `json:"operating_system"`
 	Details         types.EventDetails `json:"details"`
-	Timestamp       pgtype.Timestamp   `json:"timestamp"`
+	Timestamp       time.Time          `json:"timestamp"`
 }
 
 type User struct {
