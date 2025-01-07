@@ -1,6 +1,10 @@
 package types
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type EventDetails map[string]interface{}
 
@@ -30,4 +34,15 @@ type UserAgentDetails struct {
 	Browser string;
 	Device string;
 	OperatingSystem string;
+}
+
+type ReferralStats struct {
+	Referrer string;
+	VisitorCount int
+}
+
+type ReferralPayload struct {
+	UserID uuid.UUID
+	StartTime time.Time
+	EndTime time.Time
 }

@@ -12,8 +12,10 @@ import (
 
 type Querier interface {
 	CreateEvent(ctx context.Context, arg CreateEventParams) error
-	FindOrCreateUser(ctx context.Context, email string) (uuid.UUID, error)
-	FindUserByTrackingID(ctx context.Context, trackingID uuid.UUID) (User, error)
+	GetOrCreateUser(ctx context.Context, email string) (uuid.UUID, error)
+	GetReferrals(ctx context.Context, arg GetReferralsParams) ([]GetReferralsRow, error)
+	GetUserByTrackingID(ctx context.Context, trackingID uuid.UUID) (User, error)
+	GetUserTrackingID(ctx context.Context, id uuid.UUID) (uuid.UUID, error)
 }
 
 var _ Querier = (*Queries)(nil)

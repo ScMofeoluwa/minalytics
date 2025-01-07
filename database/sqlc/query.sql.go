@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"time"
 
 	types "github.com/ScMofeoluwa/minalytics/types"
 	"github.com/google/uuid"
@@ -14,8 +15,8 @@ import (
 
 const createEvent = `-- name: CreateEvent :exec
 INSERT INTO events (
-  visitor_id, tracking_id, event_type, url, referrer, country, browser, device, operating_system, details, timestamp
-) VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP )
+  visitor_id, tracking_id, event_type, url, referrer, country, browser, device, operating_system, details
+) VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10 )
 `
 
 type CreateEventParams struct {
@@ -47,7 +48,7 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error 
 	return err
 }
 
-const findOrCreateUser = `-- name: FindOrCreateUser :one
+const getOrCreateUser = `-- name: GetOrCreateUser :one
 INSERT INTO users (
   email
 ) VALUES ( $1 )
@@ -56,20 +57,70 @@ SET email = EXCLUDED.email
 RETURNING id
 `
 
-func (q *Queries) FindOrCreateUser(ctx context.Context, email string) (uuid.UUID, error) {
-	row := q.db.QueryRow(ctx, findOrCreateUser, email)
+func (q *Queries) GetOrCreateUser(ctx context.Context, email string) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, getOrCreateUser, email)
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
 }
 
-const findUserByTrackingID = `-- name: FindUserByTrackingID :one
+const getReferrals = `-- name: GetReferrals :many
+SELECT referrer, COUNT(DISTINCT visitor_id) AS visitor_count
+FROM users u JOIN events e ON u.tracking_id = e.tracking_id
+WHERE referrer IS NOT NULL AND u.id = $1 AND timestamp BETWEEN $2 AND $3 
+GROUP BY referrer 
+ORDER BY visitor_count DESC
+`
+
+type GetReferralsParams struct {
+	ID          uuid.UUID `json:"id"`
+	Timestamp   time.Time `json:"timestamp"`
+	Timestamp_2 time.Time `json:"timestamp_2"`
+}
+
+type GetReferralsRow struct {
+	Referrer     *string `json:"referrer"`
+	VisitorCount int64   `json:"visitor_count"`
+}
+
+func (q *Queries) GetReferrals(ctx context.Context, arg GetReferralsParams) ([]GetReferralsRow, error) {
+	rows, err := q.db.Query(ctx, getReferrals, arg.ID, arg.Timestamp, arg.Timestamp_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetReferralsRow{}
+	for rows.Next() {
+		var i GetReferralsRow
+		if err := rows.Scan(&i.Referrer, &i.VisitorCount); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUserByTrackingID = `-- name: GetUserByTrackingID :one
 SELECT id, tracking_id, email FROM users WHERE users.tracking_id = $1
 `
 
-func (q *Queries) FindUserByTrackingID(ctx context.Context, trackingID uuid.UUID) (User, error) {
-	row := q.db.QueryRow(ctx, findUserByTrackingID, trackingID)
+func (q *Queries) GetUserByTrackingID(ctx context.Context, trackingID uuid.UUID) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByTrackingID, trackingID)
 	var i User
 	err := row.Scan(&i.ID, &i.TrackingID, &i.Email)
 	return i, err
+}
+
+const getUserTrackingID = `-- name: GetUserTrackingID :one
+SELECT tracking_id FROM users WHERE users.id = $1
+`
+
+func (q *Queries) GetUserTrackingID(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, getUserTrackingID, id)
+	var tracking_id uuid.UUID
+	err := row.Scan(&tracking_id)
+	return tracking_id, err
 }

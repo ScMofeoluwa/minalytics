@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/mileusna/useragent"
 	"github.com/oschwald/geoip2-golang"
 	"github.com/spf13/viper"
@@ -15,12 +16,7 @@ import (
 	"github.com/ScMofeoluwa/minalytics/types"
 )
 
-var (
-	ErrInvalidToken      = errors.New("invalid token")
-	ErrInvalidTrackingID = errors.New("invalid tracking ID")
-	ErrUserNotCreated    = errors.New("failed to create user")
-	ErrEventNotCreated   = errors.New("failed to create event")
-)
+var ErrInvalidToken = errors.New("invalid token")
 
 type AnalyticsService struct {
 	Queries *database.Queries
@@ -35,16 +31,16 @@ func NewAnalyticsService(queries *database.Queries, geoDB *geoip2.Reader) *Analy
 }
 
 func (s *AnalyticsService) SignIn(ctx context.Context, email string) (string, error) {
-	userId, err := s.Queries.FindOrCreateUser(ctx, email)
+	userId, err := s.Queries.GetOrCreateUser(ctx, email)
 	if err != nil {
-		return "", ErrUserNotCreated
+		return "", err
 	}
 	return CreateJWT(userId.String())
 }
 
 func (s *AnalyticsService) TrackEvent(ctx context.Context, data types.EventPayload) error {
-	if _, err := s.Queries.FindUserByTrackingID(ctx, data.Tracking.TrackingId); err != nil {
-		return ErrInvalidTrackingID
+	if _, err := s.Queries.GetUserByTrackingID(ctx, data.Tracking.TrackingId); err != nil {
+		return err
 	}
 
 	uaDetails := s.ParseUserAgent(data.Tracking.Ua)
@@ -63,19 +59,51 @@ func (s *AnalyticsService) TrackEvent(ctx context.Context, data types.EventPaylo
 	}
 
 	if err := s.Queries.CreateEvent(ctx, params); err != nil {
-		return ErrEventNotCreated
+		return err
 	}
 	return nil
 }
 
-func (s *AnalyticsService) ResolveGeoLocation(remoteAddr string) (types.GeoLocation, error) {
+func (s *AnalyticsService) GetTrackingID(ctx context.Context, userID uuid.UUID) (string, error) {
+	user, err := s.Queries.GetUserTrackingID(ctx, userID)
+	if err != nil {
+		return "", err
+	}
+
+	return user.String(), nil
+}
+
+func (s *AnalyticsService) GetReferrals(ctx context.Context, data types.ReferralPayload) ([]types.ReferralStats, error) {
+	params := database.GetReferralsParams{
+		ID:          data.UserID,
+		Timestamp:   data.StartTime,
+		Timestamp_2: data.EndTime,
+	}
+
+	stats, err := s.Queries.GetReferrals(ctx, params)
+	if err != nil {
+		return []types.ReferralStats{}, err
+	}
+
+	referralStats := make([]types.ReferralStats, 0, len(stats))
+	for _, row := range stats {
+		referralStats = append(referralStats, types.ReferralStats{
+			Referrer:     *row.Referrer,
+			VisitorCount: int(row.VisitorCount),
+		})
+	}
+
+	return referralStats, nil
+}
+
+func (s *AnalyticsService) ResolveGeoLocation(remoteAddr string) (*types.GeoLocation, error) {
 	ip := net.ParseIP(remoteAddr)
 	record, err := s.GeoDB.City(ip)
 	if err != nil {
-		return types.GeoLocation{}, err
+		return &types.GeoLocation{}, err
 	}
 
-	geoLocation := types.GeoLocation{
+	geoLocation := &types.GeoLocation{
 		Country:   record.Country.Names["en"],
 		City:      record.City.Names["en"],
 		Longitude: record.Location.Longitude,
@@ -85,14 +113,15 @@ func (s *AnalyticsService) ResolveGeoLocation(remoteAddr string) (types.GeoLocat
 	return geoLocation, nil
 }
 
-func (s *AnalyticsService) ParseUserAgent(ua string) types.UserAgentDetails {
+func (s *AnalyticsService) ParseUserAgent(ua string) *types.UserAgentDetails {
 	parsedUA := useragent.Parse(ua)
-	return types.UserAgentDetails{
+	return &types.UserAgentDetails{
 		Browser:         parsedUA.Name,
 		Device:          parsedUA.Device,
 		OperatingSystem: parsedUA.OS,
 	}
 }
+
 func CreateJWT(userId string) (string, error) {
 	claims := jwt.MapClaims{
 		"sub": userId,
