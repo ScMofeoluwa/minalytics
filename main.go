@@ -46,10 +46,20 @@ func main() {
 	analyticsHandler := NewAnalyticsHandler(analyticsService)
 
 	r := gin.Default()
-	r.GET("/", analyticsHandler.Home)
-	r.GET("/auth/:provider", analyticsHandler.SignIn)
-	r.GET("/auth/:provider/callback", analyticsHandler.Callback)
-	r.GET("/track", analyticsHandler.TrackEvent)
+	r.GET("/", WrapHandler(analyticsHandler.Home))
+	r.GET("/track", WrapHandler(analyticsHandler.TrackEvent))
+
+	auth := r.Group("auth")
+	{
+		auth.GET(":provider", analyticsHandler.SignIn)
+		auth.GET(":provider/callback", WrapHandler(analyticsHandler.Callback))
+	}
+
+	analytics := r.Group("analytics")
+	analytics.Use(JWTMiddleware())
+	{
+		analytics.GET("referrals", WrapHandler(analyticsHandler.GetReferrals))
+	}
 
 	port := viper.GetString("PORT")
 	log.Printf("listening on port: %s\n", port)

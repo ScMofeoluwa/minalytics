@@ -37,8 +37,8 @@ type UserAgentDetails struct {
 }
 
 type ReferralStats struct {
-	Referrer string;
-	VisitorCount int
+	Referrer string `json:"referrer"`;
+	VisitorCount int `json:"visitor_count"`
 }
 
 type ReferralPayload struct {
