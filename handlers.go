@@ -112,7 +112,7 @@ func (h *AnalyticsHandler) GetReferrals(ctx *gin.Context) APIResponse {
 	payload := types.ReferralPayload{
 		UserID:    user,
 		StartTime: parsedTimes[0],
-		EndTime:   parsedTimes[1],
+		EndTime:   parsedTimes[1].Add(24 * time.Hour),
 	}
 
 	stats, err := h.service.GetReferrals(ctx, payload)
