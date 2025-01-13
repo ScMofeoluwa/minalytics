@@ -17,7 +17,7 @@ CREATE TABLE events (
   browser VARCHAR(100) NOT NULL,
   device VARCHAR(100) NOT NULL,
   operating_system VARCHAR(100) NOT NULL,
-  details JSON,
+  details JSONB,
   timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
   CONSTRAINT fk_events_users FOREIGN KEY (tracking_id) REFERENCES users(tracking_id) ON DELETE CASCADE

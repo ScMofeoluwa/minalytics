@@ -48,6 +48,162 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error 
 	return err
 }
 
+const getBrowsers = `-- name: GetBrowsers :many
+SELECT browser, ROUND((COUNT(DISTINCT visitor_id) * 100.0) / SUM(COUNT(DISTINCT visitor_id)) OVER (), 0) as percentage
+FROM users u JOIN events e ON u.tracking_id = e.tracking_id
+WHERE u.id = $1 AND timestamp BETWEEN $2 AND $3 
+GROUP BY browser
+ORDER BY percentage DESC
+`
+
+type GetBrowsersParams struct {
+	ID          uuid.UUID `json:"id"`
+	Timestamp   time.Time `json:"timestamp"`
+	Timestamp_2 time.Time `json:"timestamp_2"`
+}
+
+type GetBrowsersRow struct {
+	Browser    string `json:"browser"`
+	Percentage int    `json:"percentage"`
+}
+
+func (q *Queries) GetBrowsers(ctx context.Context, arg GetBrowsersParams) ([]GetBrowsersRow, error) {
+	rows, err := q.db.Query(ctx, getBrowsers, arg.ID, arg.Timestamp, arg.Timestamp_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetBrowsersRow{}
+	for rows.Next() {
+		var i GetBrowsersRow
+		if err := rows.Scan(&i.Browser, &i.Percentage); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getCountries = `-- name: GetCountries :many
+SELECT country, ROUND((COUNT(DISTINCT visitor_id) * 100.0) / SUM(COUNT(DISTINCT visitor_id)) OVER (), 0) as percentage
+FROM users u JOIN events e ON u.tracking_id = e.tracking_id
+WHERE u.id = $1 AND timestamp BETWEEN $2 AND $3 
+GROUP BY country
+ORDER BY percentage DESC
+`
+
+type GetCountriesParams struct {
+	ID          uuid.UUID `json:"id"`
+	Timestamp   time.Time `json:"timestamp"`
+	Timestamp_2 time.Time `json:"timestamp_2"`
+}
+
+type GetCountriesRow struct {
+	Country    string `json:"country"`
+	Percentage int    `json:"percentage"`
+}
+
+func (q *Queries) GetCountries(ctx context.Context, arg GetCountriesParams) ([]GetCountriesRow, error) {
+	rows, err := q.db.Query(ctx, getCountries, arg.ID, arg.Timestamp, arg.Timestamp_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetCountriesRow{}
+	for rows.Next() {
+		var i GetCountriesRow
+		if err := rows.Scan(&i.Country, &i.Percentage); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getDevices = `-- name: GetDevices :many
+SELECT device, ROUND((COUNT(DISTINCT visitor_id) * 100.0) / SUM(COUNT(DISTINCT visitor_id)) OVER (), 0) as percentage
+FROM users u JOIN events e ON u.tracking_id = e.tracking_id
+WHERE u.id = $1 AND timestamp BETWEEN $2 AND $3 
+GROUP BY device
+ORDER BY percentage DESC
+`
+
+type GetDevicesParams struct {
+	ID          uuid.UUID `json:"id"`
+	Timestamp   time.Time `json:"timestamp"`
+	Timestamp_2 time.Time `json:"timestamp_2"`
+}
+
+type GetDevicesRow struct {
+	Device     string `json:"device"`
+	Percentage int    `json:"percentage"`
+}
+
+func (q *Queries) GetDevices(ctx context.Context, arg GetDevicesParams) ([]GetDevicesRow, error) {
+	rows, err := q.db.Query(ctx, getDevices, arg.ID, arg.Timestamp, arg.Timestamp_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetDevicesRow{}
+	for rows.Next() {
+		var i GetDevicesRow
+		if err := rows.Scan(&i.Device, &i.Percentage); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getOS = `-- name: GetOS :many
+SELECT operating_system, ROUND((COUNT(DISTINCT visitor_id) * 100.0) / SUM(COUNT(DISTINCT visitor_id)) OVER (), 0) as percentage
+FROM users u JOIN events e ON u.tracking_id = e.tracking_id
+WHERE u.id = $1 AND timestamp BETWEEN $2 AND $3 
+GROUP BY operating_system
+ORDER BY percentage DESC
+`
+
+type GetOSParams struct {
+	ID          uuid.UUID `json:"id"`
+	Timestamp   time.Time `json:"timestamp"`
+	Timestamp_2 time.Time `json:"timestamp_2"`
+}
+
+type GetOSRow struct {
+	OperatingSystem string `json:"operating_system"`
+	Percentage      int    `json:"percentage"`
+}
+
+func (q *Queries) GetOS(ctx context.Context, arg GetOSParams) ([]GetOSRow, error) {
+	rows, err := q.db.Query(ctx, getOS, arg.ID, arg.Timestamp, arg.Timestamp_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetOSRow{}
+	for rows.Next() {
+		var i GetOSRow
+		if err := rows.Scan(&i.OperatingSystem, &i.Percentage); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getOrCreateUser = `-- name: GetOrCreateUser :one
 INSERT INTO users (
   email
@@ -64,11 +220,50 @@ func (q *Queries) GetOrCreateUser(ctx context.Context, email string) (uuid.UUID,
 	return id, err
 }
 
+const getPages = `-- name: GetPages :many
+SELECT url, COUNT(DISTINCT visitor_id) AS visitor_count
+FROM users u JOIN events e ON u.tracking_id = e.tracking_id
+WHERE url IS NOT NULL AND e.event_type = 'pageview' AND u.id = $1 AND timestamp BETWEEN $2 AND $3 
+GROUP BY url
+ORDER BY visitor_count DESC
+`
+
+type GetPagesParams struct {
+	ID          uuid.UUID `json:"id"`
+	Timestamp   time.Time `json:"timestamp"`
+	Timestamp_2 time.Time `json:"timestamp_2"`
+}
+
+type GetPagesRow struct {
+	Url          *string `json:"url"`
+	VisitorCount int64   `json:"visitor_count"`
+}
+
+func (q *Queries) GetPages(ctx context.Context, arg GetPagesParams) ([]GetPagesRow, error) {
+	rows, err := q.db.Query(ctx, getPages, arg.ID, arg.Timestamp, arg.Timestamp_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetPagesRow{}
+	for rows.Next() {
+		var i GetPagesRow
+		if err := rows.Scan(&i.Url, &i.VisitorCount); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getReferrals = `-- name: GetReferrals :many
 SELECT referrer, COUNT(DISTINCT visitor_id) AS visitor_count
 FROM users u JOIN events e ON u.tracking_id = e.tracking_id
 WHERE referrer IS NOT NULL AND u.id = $1 AND timestamp BETWEEN $2 AND $3 
-GROUP BY referrer 
+GROUP BY referrer
 ORDER BY visitor_count DESC
 `
 

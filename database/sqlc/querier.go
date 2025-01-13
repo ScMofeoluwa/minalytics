@@ -12,7 +12,12 @@ import (
 
 type Querier interface {
 	CreateEvent(ctx context.Context, arg CreateEventParams) error
+	GetBrowsers(ctx context.Context, arg GetBrowsersParams) ([]GetBrowsersRow, error)
+	GetCountries(ctx context.Context, arg GetCountriesParams) ([]GetCountriesRow, error)
+	GetDevices(ctx context.Context, arg GetDevicesParams) ([]GetDevicesRow, error)
+	GetOS(ctx context.Context, arg GetOSParams) ([]GetOSRow, error)
 	GetOrCreateUser(ctx context.Context, email string) (uuid.UUID, error)
+	GetPages(ctx context.Context, arg GetPagesParams) ([]GetPagesRow, error)
 	GetReferrals(ctx context.Context, arg GetReferralsParams) ([]GetReferralsRow, error)
 	GetUserByTrackingID(ctx context.Context, trackingID uuid.UUID) (User, error)
 	GetUserTrackingID(ctx context.Context, id uuid.UUID) (uuid.UUID, error)
