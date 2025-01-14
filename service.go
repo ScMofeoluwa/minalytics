@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net"
+	"net/url"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -39,15 +40,15 @@ func (s *AnalyticsService) SignIn(ctx context.Context, email string) (string, er
 }
 
 func (s *AnalyticsService) TrackEvent(ctx context.Context, data types.EventPayload) error {
-	if _, err := s.Queries.GetUserByTrackingID(ctx, data.Tracking.TrackingId); err != nil {
+	if _, err := s.Queries.GetUserByTrackingID(ctx, data.Tracking.TrackingID); err != nil {
 		return err
 	}
 
 	uaDetails := s.ParseUserAgent(data.Tracking.Ua)
 
 	params := database.CreateEventParams{
-		VisitorID:       data.Tracking.VisitorId,
-		TrackingID:      data.Tracking.TrackingId,
+		VisitorID:       data.Tracking.VisitorID,
+		TrackingID:      data.Tracking.TrackingID,
 		EventType:       data.Type,
 		Url:             &data.Tracking.Url,
 		Referrer:        &data.Tracking.Referrer,
@@ -73,7 +74,7 @@ func (s *AnalyticsService) GetTrackingID(ctx context.Context, userID uuid.UUID) 
 	return user.String(), nil
 }
 
-func (s *AnalyticsService) GetReferrals(ctx context.Context, data types.ReferralPayload) ([]types.ReferralStats, error) {
+func (s *AnalyticsService) GetReferrals(ctx context.Context, data types.RequestPayload) ([]types.ReferralStats, error) {
 	params := database.GetReferralsParams{
 		ID:          data.UserID,
 		Timestamp:   data.StartTime,
@@ -94,6 +95,126 @@ func (s *AnalyticsService) GetReferrals(ctx context.Context, data types.Referral
 	}
 
 	return referralStats, nil
+}
+
+func (s *AnalyticsService) GetPages(ctx context.Context, data types.RequestPayload) ([]types.PageStats, error) {
+	params := database.GetPagesParams{
+		ID:          data.UserID,
+		Timestamp:   data.StartTime,
+		Timestamp_2: data.EndTime,
+	}
+
+	stats, err := s.Queries.GetPages(ctx, params)
+	if err != nil {
+		return []types.PageStats{}, err
+	}
+
+	pageStats := make([]types.PageStats, 0, len(stats))
+	for _, row := range stats {
+		url, err := url.Parse(*row.Url)
+		if err != nil {
+			return nil, err
+		}
+
+		pageStats = append(pageStats, types.PageStats{
+			Path:         url.Path,
+			VisitorCount: int(row.VisitorCount),
+		})
+	}
+
+	return pageStats, nil
+}
+
+func (s *AnalyticsService) GetBrowsers(ctx context.Context, data types.RequestPayload) ([]types.BrowserStats, error) {
+	params := database.GetBrowsersParams{
+		ID:          data.UserID,
+		Timestamp:   data.StartTime,
+		Timestamp_2: data.EndTime,
+	}
+
+	stats, err := s.Queries.GetBrowsers(ctx, params)
+	if err != nil {
+		return []types.BrowserStats{}, err
+	}
+
+	browserStats := make([]types.BrowserStats, 0, len(stats))
+	for _, row := range stats {
+		browserStats = append(browserStats, types.BrowserStats{
+			Browser:    row.Browser,
+			Percentage: int(row.Percentage),
+		})
+	}
+
+	return browserStats, nil
+}
+
+func (s *AnalyticsService) GetCountries(ctx context.Context, data types.RequestPayload) ([]types.CountryStats, error) {
+	params := database.GetCountriesParams{
+		ID:          data.UserID,
+		Timestamp:   data.StartTime,
+		Timestamp_2: data.EndTime,
+	}
+
+	stats, err := s.Queries.GetCountries(ctx, params)
+	if err != nil {
+		return []types.CountryStats{}, err
+	}
+
+	countryStats := make([]types.CountryStats, 0, len(stats))
+	for _, row := range stats {
+		countryStats = append(countryStats, types.CountryStats{
+			Country:    row.Country,
+			Percentage: int(row.Percentage),
+		})
+	}
+
+	return countryStats, nil
+}
+
+func (s *AnalyticsService) GetDevices(ctx context.Context, data types.RequestPayload) ([]types.DeviceStats, error) {
+	params := database.GetDevicesParams{
+		ID:          data.UserID,
+		Timestamp:   data.StartTime,
+		Timestamp_2: data.EndTime,
+	}
+
+	stats, err := s.Queries.GetDevices(ctx, params)
+	if err != nil {
+		return []types.DeviceStats{}, err
+	}
+
+	deviceStats := make([]types.DeviceStats, 0, len(stats))
+	for _, row := range stats {
+		deviceStats = append(deviceStats, types.DeviceStats{
+			Device:     row.Device,
+			Percentage: int(row.Percentage),
+		})
+	}
+
+	return deviceStats, nil
+}
+
+func (s *AnalyticsService) GetOS(ctx context.Context, data types.RequestPayload) ([]types.OSStats, error) {
+	params := database.GetOSParams{
+		ID:          data.UserID,
+		Timestamp:   data.StartTime,
+		Timestamp_2: data.EndTime,
+	}
+
+	stats, err := s.Queries.GetOS(ctx, params)
+	if err != nil {
+		return []types.OSStats{}, err
+	}
+
+	OSStats := make([]types.OSStats, 0, len(stats))
+	for _, row := range stats {
+		OSStats = append(OSStats, types.OSStats{
+			OS:         row.OperatingSystem,
+			Percentage: int(row.Percentage),
+		})
+	}
+
+	return OSStats, nil
 }
 
 func (s *AnalyticsService) ResolveGeoLocation(remoteAddr string) (*types.GeoLocation, error) {

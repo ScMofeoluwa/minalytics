@@ -9,8 +9,8 @@ import (
 type EventDetails map[string]interface{}
 
 type TrackingData struct {
-	VisitorId string;
-	TrackingId uuid.UUID;
+	VisitorID string;
+	TrackingID uuid.UUID;
 	Url string;
 	Referrer string;
 	Country string;
@@ -41,7 +41,32 @@ type ReferralStats struct {
 	VisitorCount int `json:"visitor_count"`
 }
 
-type ReferralPayload struct {
+type PageStats struct {
+	Path string `json:"path"`;
+	VisitorCount int `json:"visitor_count"`
+}
+
+type BrowserStats struct {
+	Browser string `json:"browser"`;
+	Percentage int `json:"percentage"`
+}
+
+type CountryStats struct {
+	Country string `json:"country"`;
+	Percentage int `json:"percentage"`
+}
+
+type DeviceStats struct {
+	Device string `json:"device"`;
+	Percentage int `json:"percentage"`
+}
+
+type OSStats struct {
+	OS string `json:"operating_system"`;
+	Percentage int `json:"percentage"`
+}
+
+type RequestPayload struct {
 	UserID uuid.UUID
 	StartTime time.Time
 	EndTime time.Time

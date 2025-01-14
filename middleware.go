@@ -1,10 +1,10 @@
 package main
 
 import (
-	"net/http"
-	"strings"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"net/http"
+	"strings"
 )
 
 func JWTMiddleware() gin.HandlerFunc {
@@ -44,7 +44,7 @@ func JWTMiddleware() gin.HandlerFunc {
 }
 
 func WrapHandler(handler func(*gin.Context) APIResponse) gin.HandlerFunc {
-	return func(ctx *gin.Context){
+	return func(ctx *gin.Context) {
 		response := handler(ctx)
 		ctx.JSON(response.statusCode, response)
 	}

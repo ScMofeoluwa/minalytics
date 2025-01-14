@@ -48,6 +48,7 @@ func main() {
 	r := gin.Default()
 	r.GET("/", WrapHandler(analyticsHandler.Home))
 	r.GET("/track", WrapHandler(analyticsHandler.TrackEvent))
+	r.GET("/account/trackingID", WrapHandler(analyticsHandler.GetTrackingID))
 
 	auth := r.Group("auth")
 	{
@@ -59,6 +60,11 @@ func main() {
 	analytics.Use(JWTMiddleware())
 	{
 		analytics.GET("referrals", WrapHandler(analyticsHandler.GetReferrals))
+		analytics.GET("pages", WrapHandler(analyticsHandler.GetPages))
+		analytics.GET("browsers", WrapHandler(analyticsHandler.GetBrowsers))
+		analytics.GET("countries", WrapHandler(analyticsHandler.GetCountries))
+		analytics.GET("devices", WrapHandler(analyticsHandler.GetDevices))
+		analytics.GET("os", WrapHandler(analyticsHandler.GetOS))
 	}
 
 	port := viper.GetString("PORT")

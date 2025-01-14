@@ -43,7 +43,7 @@ func (h *AnalyticsHandler) SignIn(ctx *gin.Context) {
 	gothic.BeginAuthHandler(ctx.Writer, ctx.Request)
 }
 
-func (h *AnalyticsHandler) Callback(ctx *gin.Context) APIResponse{
+func (h *AnalyticsHandler) Callback(ctx *gin.Context) APIResponse {
 	gothic.GetProviderName = func(r *http.Request) (string, error) {
 		return ctx.Param("provider"), nil
 	}
@@ -86,6 +86,21 @@ func (h *AnalyticsHandler) TrackEvent(ctx *gin.Context) APIResponse {
 	return NewSuccessResponse(nil, http.StatusOK, "event tracked successfully")
 }
 
+func (h *AnalyticsHandler) GetTrackingID(ctx *gin.Context) APIResponse {
+	userID, exists := ctx.Get("userID")
+	if !exists {
+		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
+	}
+
+	user := userID.(uuid.UUID)
+	trackingID, err := h.service.GetTrackingID(ctx, user)
+	if err != nil {
+		return NewErrorResponse(http.StatusInternalServerError, "failed to tracking ID")
+	}
+
+	return NewSuccessResponse(trackingID, http.StatusOK, "tracking ID fetched successfully")
+}
+
 func (h *AnalyticsHandler) GetReferrals(ctx *gin.Context) APIResponse {
 	userID, exists := ctx.Get("userID")
 	if !exists {
@@ -101,15 +116,15 @@ func (h *AnalyticsHandler) GetReferrals(ctx *gin.Context) APIResponse {
 		return NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
-	if parsedTimes[0].After(parsedTimes[1]){
+	if parsedTimes[0].After(parsedTimes[1]) {
 		return NewErrorResponse(http.StatusBadRequest, "startTime cannot be after endTime")
 	}
 
-	if parsedTimes[0].Equal(parsedTimes[1]){
+	if parsedTimes[0].Equal(parsedTimes[1]) {
 		return NewErrorResponse(http.StatusBadRequest, "startTime and endTime cannot be the same")
 	}
 
-	payload := types.ReferralPayload{
+	payload := types.RequestPayload{
 		UserID:    user,
 		StartTime: parsedTimes[0],
 		EndTime:   parsedTimes[1].Add(24 * time.Hour),
@@ -118,6 +133,192 @@ func (h *AnalyticsHandler) GetReferrals(ctx *gin.Context) APIResponse {
 	stats, err := h.service.GetReferrals(ctx, payload)
 	if err != nil {
 		return NewErrorResponse(http.StatusInternalServerError, "failed to fetch referrals")
+	}
+
+	return NewSuccessResponse(stats, http.StatusOK, "stats fetched successfully")
+}
+
+func (h *AnalyticsHandler) GetPages(ctx *gin.Context) APIResponse {
+	userID, exists := ctx.Get("userID")
+	if !exists {
+		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
+	}
+	user := userID.(uuid.UUID)
+
+	startTime := ctx.Query("startTime")
+	endTime := ctx.Query("endTime")
+
+	parsedTimes, err := parseDates(startTime, endTime)
+	if err != nil {
+		return NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	if parsedTimes[0].After(parsedTimes[1]) {
+		return NewErrorResponse(http.StatusBadRequest, "startTime cannot be after endTime")
+	}
+
+	if parsedTimes[0].Equal(parsedTimes[1]) {
+		return NewErrorResponse(http.StatusBadRequest, "startTime and endTime cannot be the same")
+	}
+	fmt.Println(user)
+
+	payload := types.RequestPayload{
+		UserID:    user,
+		StartTime: parsedTimes[0],
+		EndTime:   parsedTimes[1].Add(24 * time.Hour),
+	}
+
+	stats, err := h.service.GetPages(ctx, payload)
+	if err != nil {
+		return NewErrorResponse(http.StatusInternalServerError, "failed to fetch pages")
+	}
+
+	return NewSuccessResponse(stats, http.StatusOK, "stats fetched successfully")
+}
+
+func (h *AnalyticsHandler) GetBrowsers(ctx *gin.Context) APIResponse {
+	userID, exists := ctx.Get("userID")
+	if !exists {
+		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
+	}
+	user := userID.(uuid.UUID)
+
+	startTime := ctx.Query("startTime")
+	endTime := ctx.Query("endTime")
+
+	parsedTimes, err := parseDates(startTime, endTime)
+	if err != nil {
+		return NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	if parsedTimes[0].After(parsedTimes[1]) {
+		return NewErrorResponse(http.StatusBadRequest, "startTime cannot be after endTime")
+	}
+
+	if parsedTimes[0].Equal(parsedTimes[1]) {
+		return NewErrorResponse(http.StatusBadRequest, "startTime and endTime cannot be the same")
+	}
+
+	payload := types.RequestPayload{
+		UserID:    user,
+		StartTime: parsedTimes[0],
+		EndTime:   parsedTimes[1].Add(24 * time.Hour),
+	}
+
+	stats, err := h.service.GetBrowsers(ctx, payload)
+	if err != nil {
+		return NewErrorResponse(http.StatusInternalServerError, "failed to fetch browsers")
+	}
+
+	return NewSuccessResponse(stats, http.StatusOK, "stats fetched successfully")
+}
+
+func (h *AnalyticsHandler) GetCountries(ctx *gin.Context) APIResponse {
+	userID, exists := ctx.Get("userID")
+	if !exists {
+		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
+	}
+	user := userID.(uuid.UUID)
+
+	startTime := ctx.Query("startTime")
+	endTime := ctx.Query("endTime")
+
+	parsedTimes, err := parseDates(startTime, endTime)
+	if err != nil {
+		return NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	if parsedTimes[0].After(parsedTimes[1]) {
+		return NewErrorResponse(http.StatusBadRequest, "startTime cannot be after endTime")
+	}
+
+	if parsedTimes[0].Equal(parsedTimes[1]) {
+		return NewErrorResponse(http.StatusBadRequest, "startTime and endTime cannot be the same")
+	}
+
+	payload := types.RequestPayload{
+		UserID:    user,
+		StartTime: parsedTimes[0],
+		EndTime:   parsedTimes[1].Add(24 * time.Hour),
+	}
+
+	stats, err := h.service.GetCountries(ctx, payload)
+	if err != nil {
+		return NewErrorResponse(http.StatusInternalServerError, "failed to fetch countries")
+	}
+
+	return NewSuccessResponse(stats, http.StatusOK, "stats fetched successfully")
+}
+
+func (h *AnalyticsHandler) GetDevices(ctx *gin.Context) APIResponse {
+	userID, exists := ctx.Get("userID")
+	if !exists {
+		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
+	}
+	user := userID.(uuid.UUID)
+
+	startTime := ctx.Query("startTime")
+	endTime := ctx.Query("endTime")
+
+	parsedTimes, err := parseDates(startTime, endTime)
+	if err != nil {
+		return NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	if parsedTimes[0].After(parsedTimes[1]) {
+		return NewErrorResponse(http.StatusBadRequest, "startTime cannot be after endTime")
+	}
+
+	if parsedTimes[0].Equal(parsedTimes[1]) {
+		return NewErrorResponse(http.StatusBadRequest, "startTime and endTime cannot be the same")
+	}
+
+	payload := types.RequestPayload{
+		UserID:    user,
+		StartTime: parsedTimes[0],
+		EndTime:   parsedTimes[1].Add(24 * time.Hour),
+	}
+
+	stats, err := h.service.GetDevices(ctx, payload)
+	if err != nil {
+		return NewErrorResponse(http.StatusInternalServerError, "failed to fetch devices")
+	}
+
+	return NewSuccessResponse(stats, http.StatusOK, "stats fetched successfully")
+}
+
+func (h *AnalyticsHandler) GetOS(ctx *gin.Context) APIResponse {
+	userID, exists := ctx.Get("userID")
+	if !exists {
+		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
+	}
+	user := userID.(uuid.UUID)
+
+	startTime := ctx.Query("startTime")
+	endTime := ctx.Query("endTime")
+
+	parsedTimes, err := parseDates(startTime, endTime)
+	if err != nil {
+		return NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	if parsedTimes[0].After(parsedTimes[1]) {
+		return NewErrorResponse(http.StatusBadRequest, "startTime cannot be after endTime")
+	}
+
+	if parsedTimes[0].Equal(parsedTimes[1]) {
+		return NewErrorResponse(http.StatusBadRequest, "startTime and endTime cannot be the same")
+	}
+
+	payload := types.RequestPayload{
+		UserID:    user,
+		StartTime: parsedTimes[0],
+		EndTime:   parsedTimes[1].Add(24 * time.Hour),
+	}
+
+	stats, err := h.service.GetOS(ctx, payload)
+	if err != nil {
+		return NewErrorResponse(http.StatusInternalServerError, "failed to fetch operating systems")
 	}
 
 	return NewSuccessResponse(stats, http.StatusOK, "stats fetched successfully")
