@@ -1,5 +1,3 @@
-import { createHash } from "crypto";
-
 interface ITrackingData {
   url?: string;
   visitorId: string,
@@ -15,7 +13,7 @@ interface EventPayload {
 }
 
 class Analytics {
-  private visitorId: string;
+  private visitorId: string | null = null;
   private trackingId: string;
   private referrer: string | null;
 
@@ -24,11 +22,13 @@ class Analytics {
       throw new Error("Tracking ID is required")
     }
     this.trackingId = trackingId
-    this.visitorId = this.generateDailyVisitorHash()
     this.referrer = this.getReferrer()
   }
 
-  public track(type: string = 'pageview', details?: Record<string, any>) {
+  public async track(type: string = 'pageview', details?: Record<string, any>) {
+    if (!this.visitorId){
+      this.visitorId = await this.generateDailyVisitorHash()
+    }
     const trackingData: ITrackingData = {
       visitorId: this.visitorId,
       trackingId: this.trackingId,
@@ -75,15 +75,21 @@ class Analytics {
     // })
   }
 
-  private generateDailyVisitorHash(): string{
-    const uaHash = this.createHash(navigator.userAgent)
+  private async generateDailyVisitorHash(): Promise<string>{
+    const uaHash = await this.createHash(navigator.userAgent)
     const components = [ uaHash, new Date().toLocaleDateString()].join("|")
 
     return this.createHash(components)
   }
 
-  private createHash(input: string): string{
-    return createHash('sha256').update(input).digest('hex')
+  private async createHash(input: string): Promise<string>{
+    const encoder = new TextEncoder()
+    const data = encoder.encode(input)
+
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data)
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
+    const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("")
+    return hashHex
   }
 
   private getReferrer() {
@@ -105,7 +111,7 @@ class Analytics {
   }
 }
 
-((w: any,d: Document) => {
+(async (w, d) => {
   const script = d.currentScript as HTMLScriptElement
   const trackingId = script?.getAttribute("tracking-id")
   if (!trackingId){
@@ -113,7 +119,7 @@ class Analytics {
     return
   }
   const analytics = new Analytics(trackingId as string)
-  analytics.track()
+  await analytics.track()
   analytics.trackSubsequentPages()
 
   w._analytics = analytics
