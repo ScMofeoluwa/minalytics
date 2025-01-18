@@ -1,0 +1,16 @@
+{
+  "name": "ganal",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "esbuild --bundle --minify --global-name=_analytics --format=iife --outfile=static/track.js src/track.ts"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "tsx": "^4.19.2"
+  },
+  "dependencies": {
+    "esbuild": "^0.24.2",
+    "typescript": "^5.7.3"
+  }
+}

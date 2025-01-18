@@ -1,5 +1,0 @@
-DROP INDEX IF EXISTS idx_visitor_id;
-
-DROP TABLE IF EXISTS events;
-
-DROP TABLE IF EXISTS users;
