@@ -10,17 +10,20 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/markbates/goth/gothic"
+	"go.uber.org/zap"
 
 	"github.com/ScMofeoluwa/minalytics/types"
 )
 
 type AnalyticsHandler struct {
 	service *AnalyticsService
+	logger  *zap.Logger
 }
 
-func NewAnalyticsHandler(service *AnalyticsService) *AnalyticsHandler {
+func NewAnalyticsHandler(service *AnalyticsService, logger *zap.Logger) *AnalyticsHandler {
 	return &AnalyticsHandler{
 		service: service,
+		logger:  logger,
 	}
 }
 
@@ -38,11 +41,13 @@ func (h *AnalyticsHandler) Callback(ctx *gin.Context) APIResponse {
 
 	user, err := gothic.CompleteUserAuth(ctx.Writer, ctx.Request)
 	if err != nil {
+		h.logger.Error("authentication failed", zap.Error(err))
 		return NewErrorResponse(http.StatusInternalServerError, "authentication failed")
 	}
 
 	token, err := h.service.SignIn(ctx, user.Email)
 	if err != nil {
+		h.logger.Error("failed to sign in", zap.Error(err))
 		return NewErrorResponse(http.StatusInternalServerError, "failed to sign in")
 	}
 
@@ -63,11 +68,13 @@ func (h *AnalyticsHandler) TrackEvent(ctx *gin.Context) APIResponse {
 
 	geoLocation, err := h.service.ResolveGeoLocation(ctx.ClientIP())
 	if err != nil {
+		h.logger.Error("failed to resolve geolocation", zap.Error(err))
 		return NewErrorResponse(http.StatusInternalServerError, "failed to resolve geolocation")
 	}
 
 	payload.Tracking.Country = geoLocation.Country
 	if err := h.service.TrackEvent(ctx, payload); err != nil {
+		h.logger.Error("failed to track event", zap.Error(err))
 		return NewErrorResponse(http.StatusInternalServerError, "failed to track event")
 	}
 
@@ -77,13 +84,15 @@ func (h *AnalyticsHandler) TrackEvent(ctx *gin.Context) APIResponse {
 func (h *AnalyticsHandler) GetTrackingID(ctx *gin.Context) APIResponse {
 	userID, exists := ctx.Get("userID")
 	if !exists {
+		h.logger.Warn("userID not found in context")
 		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
 	}
 
 	user := userID.(uuid.UUID)
 	trackingID, err := h.service.GetTrackingID(ctx, user)
 	if err != nil {
-		return NewErrorResponse(http.StatusInternalServerError, "failed to tracking ID")
+		h.logger.Error("failed to get trackingID", zap.Error(err))
+		return NewErrorResponse(http.StatusInternalServerError, "failed to fetch trackingID")
 	}
 
 	return NewSuccessResponse(trackingID, http.StatusOK, "tracking ID fetched successfully")
@@ -92,6 +101,7 @@ func (h *AnalyticsHandler) GetTrackingID(ctx *gin.Context) APIResponse {
 func (h *AnalyticsHandler) GetReferrals(ctx *gin.Context) APIResponse {
 	userID, exists := ctx.Get("userID")
 	if !exists {
+		h.logger.Warn("userID not found in context")
 		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
 	}
 	user := userID.(uuid.UUID)
@@ -101,6 +111,7 @@ func (h *AnalyticsHandler) GetReferrals(ctx *gin.Context) APIResponse {
 
 	parsedTimes, err := parseDates(startTime, endTime)
 	if err != nil {
+		h.logger.Error("failed to parse dates", zap.Error(err))
 		return NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
@@ -120,6 +131,7 @@ func (h *AnalyticsHandler) GetReferrals(ctx *gin.Context) APIResponse {
 
 	stats, err := h.service.GetReferrals(ctx, payload)
 	if err != nil {
+		h.logger.Error("failed to fetch referrals", zap.Error(err))
 		return NewErrorResponse(http.StatusInternalServerError, "failed to fetch referrals")
 	}
 
@@ -129,6 +141,7 @@ func (h *AnalyticsHandler) GetReferrals(ctx *gin.Context) APIResponse {
 func (h *AnalyticsHandler) GetPages(ctx *gin.Context) APIResponse {
 	userID, exists := ctx.Get("userID")
 	if !exists {
+		h.logger.Warn("userID not found in context")
 		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
 	}
 	user := userID.(uuid.UUID)
@@ -138,6 +151,7 @@ func (h *AnalyticsHandler) GetPages(ctx *gin.Context) APIResponse {
 
 	parsedTimes, err := parseDates(startTime, endTime)
 	if err != nil {
+		h.logger.Error("failed to parse dates", zap.Error(err))
 		return NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
@@ -157,6 +171,7 @@ func (h *AnalyticsHandler) GetPages(ctx *gin.Context) APIResponse {
 
 	stats, err := h.service.GetPages(ctx, payload)
 	if err != nil {
+		h.logger.Error("failed to fetch pages", zap.Error(err))
 		return NewErrorResponse(http.StatusInternalServerError, "failed to fetch pages")
 	}
 
@@ -166,6 +181,7 @@ func (h *AnalyticsHandler) GetPages(ctx *gin.Context) APIResponse {
 func (h *AnalyticsHandler) GetBrowsers(ctx *gin.Context) APIResponse {
 	userID, exists := ctx.Get("userID")
 	if !exists {
+		h.logger.Warn("userID not found in context")
 		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
 	}
 	user := userID.(uuid.UUID)
@@ -175,6 +191,7 @@ func (h *AnalyticsHandler) GetBrowsers(ctx *gin.Context) APIResponse {
 
 	parsedTimes, err := parseDates(startTime, endTime)
 	if err != nil {
+		h.logger.Error("failed to parse dates", zap.Error(err))
 		return NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
@@ -194,6 +211,7 @@ func (h *AnalyticsHandler) GetBrowsers(ctx *gin.Context) APIResponse {
 
 	stats, err := h.service.GetBrowsers(ctx, payload)
 	if err != nil {
+		h.logger.Error("failed to fetch browsers", zap.Error(err))
 		return NewErrorResponse(http.StatusInternalServerError, "failed to fetch browsers")
 	}
 
@@ -203,6 +221,7 @@ func (h *AnalyticsHandler) GetBrowsers(ctx *gin.Context) APIResponse {
 func (h *AnalyticsHandler) GetCountries(ctx *gin.Context) APIResponse {
 	userID, exists := ctx.Get("userID")
 	if !exists {
+		h.logger.Warn("userID not found in context")
 		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
 	}
 	user := userID.(uuid.UUID)
@@ -212,6 +231,7 @@ func (h *AnalyticsHandler) GetCountries(ctx *gin.Context) APIResponse {
 
 	parsedTimes, err := parseDates(startTime, endTime)
 	if err != nil {
+		h.logger.Error("failed to parse dates", zap.Error(err))
 		return NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
@@ -231,6 +251,7 @@ func (h *AnalyticsHandler) GetCountries(ctx *gin.Context) APIResponse {
 
 	stats, err := h.service.GetCountries(ctx, payload)
 	if err != nil {
+		h.logger.Error("failed to fetch countries", zap.Error(err))
 		return NewErrorResponse(http.StatusInternalServerError, "failed to fetch countries")
 	}
 
@@ -240,6 +261,7 @@ func (h *AnalyticsHandler) GetCountries(ctx *gin.Context) APIResponse {
 func (h *AnalyticsHandler) GetDevices(ctx *gin.Context) APIResponse {
 	userID, exists := ctx.Get("userID")
 	if !exists {
+		h.logger.Warn("userID not found in context")
 		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
 	}
 	user := userID.(uuid.UUID)
@@ -249,6 +271,7 @@ func (h *AnalyticsHandler) GetDevices(ctx *gin.Context) APIResponse {
 
 	parsedTimes, err := parseDates(startTime, endTime)
 	if err != nil {
+		h.logger.Error("failed to parse dates", zap.Error(err))
 		return NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
@@ -268,6 +291,7 @@ func (h *AnalyticsHandler) GetDevices(ctx *gin.Context) APIResponse {
 
 	stats, err := h.service.GetDevices(ctx, payload)
 	if err != nil {
+		h.logger.Error("failed to fetch devices", zap.Error(err))
 		return NewErrorResponse(http.StatusInternalServerError, "failed to fetch devices")
 	}
 
@@ -277,6 +301,7 @@ func (h *AnalyticsHandler) GetDevices(ctx *gin.Context) APIResponse {
 func (h *AnalyticsHandler) GetOS(ctx *gin.Context) APIResponse {
 	userID, exists := ctx.Get("userID")
 	if !exists {
+		h.logger.Warn("userID not found in context")
 		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
 	}
 	user := userID.(uuid.UUID)
@@ -286,6 +311,7 @@ func (h *AnalyticsHandler) GetOS(ctx *gin.Context) APIResponse {
 
 	parsedTimes, err := parseDates(startTime, endTime)
 	if err != nil {
+		h.logger.Error("failed to parse dates", zap.Error(err))
 		return NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
@@ -305,6 +331,7 @@ func (h *AnalyticsHandler) GetOS(ctx *gin.Context) APIResponse {
 
 	stats, err := h.service.GetOS(ctx, payload)
 	if err != nil {
+		h.logger.Error("failed to fetch operating systems", zap.Error(err))
 		return NewErrorResponse(http.StatusInternalServerError, "failed to fetch operating systems")
 	}
 

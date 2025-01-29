@@ -10,16 +10,23 @@ import (
 	"github.com/markbates/goth/providers/google"
 	"github.com/oschwald/geoip2-golang"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 
 	database "github.com/ScMofeoluwa/minalytics/database/sqlc"
 )
 
 func main() {
+	logger, err := zap.NewProduction()
+	if err != nil {
+		log.Fatalf("Failed to initialize zap logger: %v", err)
+	}
+	defer logger.Sync()
+
 	viper.SetConfigFile(".env")
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalf("Error reading config file: %v", err)
+		logger.Fatal("Error reading config file", zap.Error(err))
 	}
 
 	goth.UseProviders(google.New(
@@ -31,19 +38,23 @@ func main() {
 
 	geoDB, err := geoip2.Open("database/GeoLite2-City.mmdb")
 	if err != nil {
-		log.Fatalf("Failed to open GeoIP2 database: %v", err)
+		logger.Fatal("Failed to open GeoIP2 database", zap.Error(err))
 	}
 	defer geoDB.Close()
 
 	connPool, err := pgxpool.New(context.Background(), viper.GetString("DATABASE_URL"))
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		logger.Fatal("Failed to create connection pool", zap.Error(err))
 	}
 	defer connPool.Close()
 
+	if err := connPool.Ping(context.Background()); err != nil {
+		logger.Fatal("Failed to connect to database", zap.Error(err))
+	}
+
 	queries := database.New(connPool)
 	analyticsService := NewAnalyticsService(queries, geoDB)
-	analyticsHandler := NewAnalyticsHandler(analyticsService)
+	analyticsHandler := NewAnalyticsHandler(analyticsService, logger)
 
 	r := gin.Default()
 	r.GET("/track", WrapHandler(analyticsHandler.TrackEvent))
