@@ -109,24 +109,10 @@ func (h *AnalyticsHandler) GetReferrals(ctx *gin.Context) APIResponse {
 	startTime := ctx.Query("startTime")
 	endTime := ctx.Query("endTime")
 
-	parsedTimes, err := parseDates(startTime, endTime)
+	payload, err := createRequestPayload(user, startTime, endTime)
 	if err != nil {
-		h.logger.Error("failed to parse dates", zap.Error(err))
-		return NewErrorResponse(http.StatusInternalServerError, err.Error())
-	}
-
-	if parsedTimes[0].After(parsedTimes[1]) {
-		return NewErrorResponse(http.StatusBadRequest, "startTime cannot be after endTime")
-	}
-
-	if parsedTimes[0].Equal(parsedTimes[1]) {
-		return NewErrorResponse(http.StatusBadRequest, "startTime and endTime cannot be the same")
-	}
-
-	payload := types.RequestPayload{
-		UserID:    user,
-		StartTime: parsedTimes[0],
-		EndTime:   parsedTimes[1].Add(24 * time.Hour),
+		h.logger.Error("invalid request parameters", zap.Error(err))
+		return NewErrorResponse(http.StatusBadRequest, err.Error())
 	}
 
 	stats, err := h.service.GetReferrals(ctx, payload)
@@ -149,24 +135,10 @@ func (h *AnalyticsHandler) GetPages(ctx *gin.Context) APIResponse {
 	startTime := ctx.Query("startTime")
 	endTime := ctx.Query("endTime")
 
-	parsedTimes, err := parseDates(startTime, endTime)
+	payload, err := createRequestPayload(user, startTime, endTime)
 	if err != nil {
-		h.logger.Error("failed to parse dates", zap.Error(err))
-		return NewErrorResponse(http.StatusInternalServerError, err.Error())
-	}
-
-	if parsedTimes[0].After(parsedTimes[1]) {
-		return NewErrorResponse(http.StatusBadRequest, "startTime cannot be after endTime")
-	}
-
-	if parsedTimes[0].Equal(parsedTimes[1]) {
-		return NewErrorResponse(http.StatusBadRequest, "startTime and endTime cannot be the same")
-	}
-
-	payload := types.RequestPayload{
-		UserID:    user,
-		StartTime: parsedTimes[0],
-		EndTime:   parsedTimes[1].Add(24 * time.Hour),
+		h.logger.Error("invalid request parameters", zap.Error(err))
+		return NewErrorResponse(http.StatusBadRequest, err.Error())
 	}
 
 	stats, err := h.service.GetPages(ctx, payload)
@@ -189,24 +161,10 @@ func (h *AnalyticsHandler) GetBrowsers(ctx *gin.Context) APIResponse {
 	startTime := ctx.Query("startTime")
 	endTime := ctx.Query("endTime")
 
-	parsedTimes, err := parseDates(startTime, endTime)
+	payload, err := createRequestPayload(user, startTime, endTime)
 	if err != nil {
-		h.logger.Error("failed to parse dates", zap.Error(err))
-		return NewErrorResponse(http.StatusInternalServerError, err.Error())
-	}
-
-	if parsedTimes[0].After(parsedTimes[1]) {
-		return NewErrorResponse(http.StatusBadRequest, "startTime cannot be after endTime")
-	}
-
-	if parsedTimes[0].Equal(parsedTimes[1]) {
-		return NewErrorResponse(http.StatusBadRequest, "startTime and endTime cannot be the same")
-	}
-
-	payload := types.RequestPayload{
-		UserID:    user,
-		StartTime: parsedTimes[0],
-		EndTime:   parsedTimes[1].Add(24 * time.Hour),
+		h.logger.Error("invalid request parameters", zap.Error(err))
+		return NewErrorResponse(http.StatusBadRequest, err.Error())
 	}
 
 	stats, err := h.service.GetBrowsers(ctx, payload)
@@ -229,24 +187,10 @@ func (h *AnalyticsHandler) GetCountries(ctx *gin.Context) APIResponse {
 	startTime := ctx.Query("startTime")
 	endTime := ctx.Query("endTime")
 
-	parsedTimes, err := parseDates(startTime, endTime)
+	payload, err := createRequestPayload(user, startTime, endTime)
 	if err != nil {
-		h.logger.Error("failed to parse dates", zap.Error(err))
-		return NewErrorResponse(http.StatusInternalServerError, err.Error())
-	}
-
-	if parsedTimes[0].After(parsedTimes[1]) {
-		return NewErrorResponse(http.StatusBadRequest, "startTime cannot be after endTime")
-	}
-
-	if parsedTimes[0].Equal(parsedTimes[1]) {
-		return NewErrorResponse(http.StatusBadRequest, "startTime and endTime cannot be the same")
-	}
-
-	payload := types.RequestPayload{
-		UserID:    user,
-		StartTime: parsedTimes[0],
-		EndTime:   parsedTimes[1].Add(24 * time.Hour),
+		h.logger.Error("invalid request parameters", zap.Error(err))
+		return NewErrorResponse(http.StatusBadRequest, err.Error())
 	}
 
 	stats, err := h.service.GetCountries(ctx, payload)
@@ -269,24 +213,10 @@ func (h *AnalyticsHandler) GetDevices(ctx *gin.Context) APIResponse {
 	startTime := ctx.Query("startTime")
 	endTime := ctx.Query("endTime")
 
-	parsedTimes, err := parseDates(startTime, endTime)
+	payload, err := createRequestPayload(user, startTime, endTime)
 	if err != nil {
-		h.logger.Error("failed to parse dates", zap.Error(err))
-		return NewErrorResponse(http.StatusInternalServerError, err.Error())
-	}
-
-	if parsedTimes[0].After(parsedTimes[1]) {
-		return NewErrorResponse(http.StatusBadRequest, "startTime cannot be after endTime")
-	}
-
-	if parsedTimes[0].Equal(parsedTimes[1]) {
-		return NewErrorResponse(http.StatusBadRequest, "startTime and endTime cannot be the same")
-	}
-
-	payload := types.RequestPayload{
-		UserID:    user,
-		StartTime: parsedTimes[0],
-		EndTime:   parsedTimes[1].Add(24 * time.Hour),
+		h.logger.Error("invalid request parameters", zap.Error(err))
+		return NewErrorResponse(http.StatusBadRequest, err.Error())
 	}
 
 	stats, err := h.service.GetDevices(ctx, payload)
@@ -309,24 +239,10 @@ func (h *AnalyticsHandler) GetOS(ctx *gin.Context) APIResponse {
 	startTime := ctx.Query("startTime")
 	endTime := ctx.Query("endTime")
 
-	parsedTimes, err := parseDates(startTime, endTime)
+	payload, err := createRequestPayload(user, startTime, endTime)
 	if err != nil {
-		h.logger.Error("failed to parse dates", zap.Error(err))
-		return NewErrorResponse(http.StatusInternalServerError, err.Error())
-	}
-
-	if parsedTimes[0].After(parsedTimes[1]) {
-		return NewErrorResponse(http.StatusBadRequest, "startTime cannot be after endTime")
-	}
-
-	if parsedTimes[0].Equal(parsedTimes[1]) {
-		return NewErrorResponse(http.StatusBadRequest, "startTime and endTime cannot be the same")
-	}
-
-	payload := types.RequestPayload{
-		UserID:    user,
-		StartTime: parsedTimes[0],
-		EndTime:   parsedTimes[1].Add(24 * time.Hour),
+		h.logger.Error("invalid request parameters", zap.Error(err))
+		return NewErrorResponse(http.StatusBadRequest, err.Error())
 	}
 
 	stats, err := h.service.GetOS(ctx, payload)
@@ -336,6 +252,29 @@ func (h *AnalyticsHandler) GetOS(ctx *gin.Context) APIResponse {
 	}
 
 	return NewSuccessResponse(stats, http.StatusOK, "stats fetched successfully")
+}
+
+func createRequestPayload(userID uuid.UUID, startTimeStr, endTimeStr string) (types.RequestPayload, error) {
+	parsedTimes, err := parseDates(startTimeStr, endTimeStr)
+	if err != nil {
+		return types.RequestPayload{}, err
+	}
+
+	startTime, endTime := parsedTimes[0], parsedTimes[1]
+
+	if startTime.After(endTime) {
+		return types.RequestPayload{}, fmt.Errorf("startTime cannot be after endTime")
+	}
+
+	if startTime.Equal(endTime) {
+		return types.RequestPayload{}, fmt.Errorf("startTime and endTime cannot be the same")
+	}
+
+	return types.RequestPayload{
+		UserID:    userID,
+		StartTime: startTime,
+		EndTime:   endTime.Add(24 * time.Hour),
+	}, nil
 }
 
 func parseDates(dateStrings ...string) ([]time.Time, error) {
