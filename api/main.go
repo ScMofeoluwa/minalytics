@@ -13,6 +13,9 @@ import (
 	"go.uber.org/zap"
 
 	database "github.com/ScMofeoluwa/minalytics/database/sqlc"
+	_ "github.com/ScMofeoluwa/minalytics/docs"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
@@ -57,7 +60,8 @@ func main() {
 	analyticsHandler := NewAnalyticsHandler(analyticsService, logger)
 
 	r := gin.Default()
-	r.GET("/track", WrapHandler(analyticsHandler.TrackEvent))
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	r.GET("/analytics/track", WrapHandler(analyticsHandler.TrackEvent))
 	r.GET("/account/trackingID", WrapHandler(analyticsHandler.GetTrackingID))
 
 	auth := r.Group("auth")

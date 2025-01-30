@@ -1,0 +1,304 @@
+definitions:
+  main.APIResponse:
+    properties:
+      data: {}
+      message:
+        type: string
+    type: object
+  main.APIStatus:
+    properties:
+      message:
+        type: string
+    type: object
+  main.BrowserResponse:
+    properties:
+      data:
+        $ref: '#/definitions/types.BrowserStats'
+      message:
+        type: string
+    type: object
+  main.CountryResponse:
+    properties:
+      data:
+        $ref: '#/definitions/types.CountryStats'
+      message:
+        type: string
+    type: object
+  main.DeviceResponse:
+    properties:
+      data:
+        $ref: '#/definitions/types.DeviceStats'
+      message:
+        type: string
+    type: object
+  main.OSResponse:
+    properties:
+      data:
+        $ref: '#/definitions/types.OSStats'
+      message:
+        type: string
+    type: object
+  main.PageResponse:
+    properties:
+      data:
+        $ref: '#/definitions/types.PageStats'
+      message:
+        type: string
+    type: object
+  main.ReferralResponse:
+    properties:
+      data:
+        $ref: '#/definitions/types.ReferralStats'
+      message:
+        type: string
+    type: object
+  types.BrowserStats:
+    properties:
+      browser:
+        type: string
+      percentage:
+        type: integer
+    type: object
+  types.CountryStats:
+    properties:
+      country:
+        type: string
+      percentage:
+        type: integer
+    type: object
+  types.DeviceStats:
+    properties:
+      device:
+        type: string
+      percentage:
+        type: integer
+    type: object
+  types.OSStats:
+    properties:
+      operating_system:
+        type: string
+      percentage:
+        type: integer
+    type: object
+  types.PageStats:
+    properties:
+      path:
+        type: string
+      visitor_count:
+        type: integer
+    type: object
+  types.ReferralStats:
+    properties:
+      referrer:
+        type: string
+      visitor_count:
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /account/trackingID:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves trackingID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: tracking ID fetched successfully
+          schema:
+            $ref: '#/definitions/main.APIResponse'
+        "401":
+          description: userID not found in context
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+        "500":
+          description: failed to fetch trackingID
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+      security:
+      - BearerAuth: []
+      summary: Get Tracking ID
+      tags:
+      - Account
+  /analytics/browsers:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves browser stats
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: stats fetched successfully
+          schema:
+            $ref: '#/definitions/main.BrowserResponse'
+        "401":
+          description: userID not found in context
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+        "500":
+          description: failed to fetch browsers
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+      security:
+      - BearerAuth: []
+      summary: Get Browsers
+      tags:
+      - Analytics
+  /analytics/countries:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves country stats
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: stats fetched successfully
+          schema:
+            $ref: '#/definitions/main.CountryResponse'
+        "401":
+          description: userID not found in context
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+        "500":
+          description: failed to fetch countries
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+      security:
+      - BearerAuth: []
+      summary: Get Countries
+      tags:
+      - Analytics
+  /analytics/devices:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves device stats
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: stats fetched successfully
+          schema:
+            $ref: '#/definitions/main.DeviceResponse'
+        "401":
+          description: userID not found in context
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+        "500":
+          description: failed to fetch devices
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+      security:
+      - BearerAuth: []
+      summary: Get Devices
+      tags:
+      - Analytics
+  /analytics/os:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves operating system stats
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: stats fetched successfully
+          schema:
+            $ref: '#/definitions/main.OSResponse'
+        "401":
+          description: userID not found in context
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+        "500":
+          description: failed to fetch operating systems
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+      security:
+      - BearerAuth: []
+      summary: Get OS
+      tags:
+      - Analytics
+  /analytics/pages:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves page stats
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: stats fetched successfully
+          schema:
+            $ref: '#/definitions/main.PageResponse'
+        "401":
+          description: userID not found in context
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+        "500":
+          description: failed to fetch pages
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+      security:
+      - BearerAuth: []
+      summary: Get Pages
+      tags:
+      - Analytics
+  /analytics/referrals:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves referral stats
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: stats fetched successfully
+          schema:
+            $ref: '#/definitions/main.ReferralResponse'
+        "401":
+          description: userID not found in context
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+        "500":
+          description: failed to fetch referrals
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+      security:
+      - BearerAuth: []
+      summary: Get Referrals
+      tags:
+      - Analytics
+  /analytics/track:
+    get:
+      consumes:
+      - application/json
+      description: Tracks an event based on encoded data
+      parameters:
+      - description: Base64 encoded event data
+        in: query
+        name: data
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Event tracked successfully
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+        "400":
+          description: Invalid base64 or JSON data
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+        "500":
+          description: Failed to resolve geolocation or track event
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+      summary: Track an event
+      tags:
+      - Analytics
+swagger: "2.0"

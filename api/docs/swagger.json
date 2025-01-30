@@ -1,0 +1,483 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/account/trackingID": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves trackingID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Get Tracking ID",
+                "responses": {
+                    "200": {
+                        "description": "tracking ID fetched successfully",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "userID not found in context",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    },
+                    "500": {
+                        "description": "failed to fetch trackingID",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    }
+                }
+            }
+        },
+        "/analytics/browsers": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves browser stats",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get Browsers",
+                "responses": {
+                    "200": {
+                        "description": "stats fetched successfully",
+                        "schema": {
+                            "$ref": "#/definitions/main.BrowserResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "userID not found in context",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    },
+                    "500": {
+                        "description": "failed to fetch browsers",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    }
+                }
+            }
+        },
+        "/analytics/countries": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves country stats",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get Countries",
+                "responses": {
+                    "200": {
+                        "description": "stats fetched successfully",
+                        "schema": {
+                            "$ref": "#/definitions/main.CountryResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "userID not found in context",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    },
+                    "500": {
+                        "description": "failed to fetch countries",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    }
+                }
+            }
+        },
+        "/analytics/devices": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves device stats",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get Devices",
+                "responses": {
+                    "200": {
+                        "description": "stats fetched successfully",
+                        "schema": {
+                            "$ref": "#/definitions/main.DeviceResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "userID not found in context",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    },
+                    "500": {
+                        "description": "failed to fetch devices",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    }
+                }
+            }
+        },
+        "/analytics/os": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves operating system stats",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get OS",
+                "responses": {
+                    "200": {
+                        "description": "stats fetched successfully",
+                        "schema": {
+                            "$ref": "#/definitions/main.OSResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "userID not found in context",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    },
+                    "500": {
+                        "description": "failed to fetch operating systems",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    }
+                }
+            }
+        },
+        "/analytics/pages": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves page stats",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get Pages",
+                "responses": {
+                    "200": {
+                        "description": "stats fetched successfully",
+                        "schema": {
+                            "$ref": "#/definitions/main.PageResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "userID not found in context",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    },
+                    "500": {
+                        "description": "failed to fetch pages",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    }
+                }
+            }
+        },
+        "/analytics/referrals": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves referral stats",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get Referrals",
+                "responses": {
+                    "200": {
+                        "description": "stats fetched successfully",
+                        "schema": {
+                            "$ref": "#/definitions/main.ReferralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "userID not found in context",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    },
+                    "500": {
+                        "description": "failed to fetch referrals",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    }
+                }
+            }
+        },
+        "/analytics/track": {
+            "get": {
+                "description": "Tracks an event based on encoded data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Track an event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Base64 encoded event data",
+                        "name": "data",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Event tracked successfully",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid base64 or JSON data",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to resolve geolocation or track event",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "main.APIResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.APIStatus": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.BrowserResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/types.BrowserStats"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.CountryResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/types.CountryStats"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.DeviceResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/types.DeviceStats"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.OSResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/types.OSStats"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.PageResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/types.PageStats"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.ReferralResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/types.ReferralStats"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.BrowserStats": {
+            "type": "object",
+            "properties": {
+                "browser": {
+                    "type": "string"
+                },
+                "percentage": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.CountryStats": {
+            "type": "object",
+            "properties": {
+                "country": {
+                    "type": "string"
+                },
+                "percentage": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.DeviceStats": {
+            "type": "object",
+            "properties": {
+                "device": {
+                    "type": "string"
+                },
+                "percentage": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.OSStats": {
+            "type": "object",
+            "properties": {
+                "operating_system": {
+                    "type": "string"
+                },
+                "percentage": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.PageStats": {
+            "type": "object",
+            "properties": {
+                "path": {
+                    "type": "string"
+                },
+                "visitor_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.ReferralStats": {
+            "type": "object",
+            "properties": {
+                "referrer": {
+                    "type": "string"
+                },
+                "visitor_count": {
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}

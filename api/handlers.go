@@ -54,6 +54,16 @@ func (h *AnalyticsHandler) Callback(ctx *gin.Context) APIResponse {
 	return NewSuccessResponse(token, http.StatusOK, "login successful")
 }
 
+// @Summary Track an event
+// @Description Tracks an event based on encoded data
+// @Tags Analytics
+// @Accept json
+// @Produce json
+// @Param data query string true "Base64 encoded event data"
+// @Success 200 {object} APIStatus "Event tracked successfully"
+// @Failure 400 {object} APIStatus "Invalid base64 or JSON data"
+// @Failure 500 {object} APIStatus "Failed to resolve geolocation or track event"
+// @Router /analytics/track [get]
 func (h *AnalyticsHandler) TrackEvent(ctx *gin.Context) APIResponse {
 	encodedData := ctx.Query("data")
 	decodedData, err := base64.StdEncoding.DecodeString(encodedData)
@@ -81,6 +91,16 @@ func (h *AnalyticsHandler) TrackEvent(ctx *gin.Context) APIResponse {
 	return NewSuccessResponse(nil, http.StatusOK, "event tracked successfully")
 }
 
+// @Summary Get Tracking ID
+// @Description Retrieves trackingID
+// @Tags Account
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Success 200 {object} APIResponse "tracking ID fetched successfully"
+// @Failure 401 {object} APIStatus "userID not found in context"
+// @Failure 500 {object} APIStatus "failed to fetch trackingID"
+// @Router /account/trackingID [get]
 func (h *AnalyticsHandler) GetTrackingID(ctx *gin.Context) APIResponse {
 	userID, exists := ctx.Get("userID")
 	if !exists {
@@ -95,9 +115,19 @@ func (h *AnalyticsHandler) GetTrackingID(ctx *gin.Context) APIResponse {
 		return NewErrorResponse(http.StatusInternalServerError, "failed to fetch trackingID")
 	}
 
-	return NewSuccessResponse(trackingID, http.StatusOK, "tracking ID fetched successfully")
+	return NewSuccessResponse(trackingID, http.StatusOK, "trackingID fetched successfully")
 }
 
+// @Summary Get Referrals
+// @Description Retrieves referral stats
+// @Tags Analytics
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Success 200 {object} ReferralResponse "stats fetched successfully"
+// @Failure 401 {object} APIStatus "userID not found in context"
+// @Failure 500 {object} APIStatus "failed to fetch referrals"
+// @Router /analytics/referrals [get]
 func (h *AnalyticsHandler) GetReferrals(ctx *gin.Context) APIResponse {
 	userID, exists := ctx.Get("userID")
 	if !exists {
@@ -124,6 +154,16 @@ func (h *AnalyticsHandler) GetReferrals(ctx *gin.Context) APIResponse {
 	return NewSuccessResponse(stats, http.StatusOK, "stats fetched successfully")
 }
 
+// @Summary Get Pages
+// @Description Retrieves page stats
+// @Tags Analytics
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Success 200 {object} PageResponse "stats fetched successfully"
+// @Failure 401 {object} APIStatus "userID not found in context"
+// @Failure 500 {object} APIStatus "failed to fetch pages"
+// @Router /analytics/pages [get]
 func (h *AnalyticsHandler) GetPages(ctx *gin.Context) APIResponse {
 	userID, exists := ctx.Get("userID")
 	if !exists {
@@ -150,6 +190,16 @@ func (h *AnalyticsHandler) GetPages(ctx *gin.Context) APIResponse {
 	return NewSuccessResponse(stats, http.StatusOK, "stats fetched successfully")
 }
 
+// @Summary Get Browsers
+// @Description Retrieves browser stats
+// @Tags Analytics
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Success 200 {object} BrowserResponse "stats fetched successfully"
+// @Failure 401 {object} APIStatus "userID not found in context"
+// @Failure 500 {object} APIStatus "failed to fetch browsers"
+// @Router /analytics/browsers [get]
 func (h *AnalyticsHandler) GetBrowsers(ctx *gin.Context) APIResponse {
 	userID, exists := ctx.Get("userID")
 	if !exists {
@@ -176,6 +226,16 @@ func (h *AnalyticsHandler) GetBrowsers(ctx *gin.Context) APIResponse {
 	return NewSuccessResponse(stats, http.StatusOK, "stats fetched successfully")
 }
 
+// @Summary Get Countries
+// @Description Retrieves country stats
+// @Tags Analytics
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Success 200 {object} CountryResponse "stats fetched successfully"
+// @Failure 401 {object} APIStatus "userID not found in context"
+// @Failure 500 {object} APIStatus "failed to fetch countries"
+// @Router /analytics/countries [get]
 func (h *AnalyticsHandler) GetCountries(ctx *gin.Context) APIResponse {
 	userID, exists := ctx.Get("userID")
 	if !exists {
@@ -202,6 +262,16 @@ func (h *AnalyticsHandler) GetCountries(ctx *gin.Context) APIResponse {
 	return NewSuccessResponse(stats, http.StatusOK, "stats fetched successfully")
 }
 
+// @Summary Get Devices
+// @Description Retrieves device stats
+// @Tags Analytics
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Success 200 {object} DeviceResponse "stats fetched successfully"
+// @Failure 401 {object} APIStatus "userID not found in context"
+// @Failure 500 {object} APIStatus "failed to fetch devices"
+// @Router /analytics/devices [get]
 func (h *AnalyticsHandler) GetDevices(ctx *gin.Context) APIResponse {
 	userID, exists := ctx.Get("userID")
 	if !exists {
@@ -228,6 +298,16 @@ func (h *AnalyticsHandler) GetDevices(ctx *gin.Context) APIResponse {
 	return NewSuccessResponse(stats, http.StatusOK, "stats fetched successfully")
 }
 
+// @Summary Get OS
+// @Description Retrieves operating system stats
+// @Tags Analytics
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Success 200 {object} OSResponse "stats fetched successfully"
+// @Failure 401 {object} APIStatus "userID not found in context"
+// @Failure 500 {object} APIStatus "failed to fetch operating systems"
+// @Router /analytics/os [get]
 func (h *AnalyticsHandler) GetOS(ctx *gin.Context) APIResponse {
 	userID, exists := ctx.Get("userID")
 	if !exists {
