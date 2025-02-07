@@ -15,46 +15,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/account/trackingID": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Retrieves trackingID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Account"
-                ],
-                "summary": "Get Tracking ID",
-                "responses": {
-                    "200": {
-                        "description": "tracking ID fetched successfully",
-                        "schema": {
-                            "$ref": "#/definitions/main.APIResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "userID not found in context",
-                        "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
-                        }
-                    },
-                    "500": {
-                        "description": "failed to fetch trackingID",
-                        "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
-                        }
-                    }
-                }
-            }
-        },
         "/analytics/browsers": {
             "get": {
                 "security": [
@@ -73,6 +33,29 @@ const docTemplate = `{
                     "Analytics"
                 ],
                 "summary": "Get Browsers",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "app tracking ID",
+                        "name": "trackingID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "start date",
+                        "name": "startDate",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "end date",
+                        "name": "endDate",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "stats fetched successfully",
@@ -80,8 +63,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/main.BrowserResponse"
                         }
                     },
-                    "401": {
-                        "description": "userID not found in context",
+                    "400": {
+                        "description": "invalid request paramaters",
                         "schema": {
                             "$ref": "#/definitions/main.APIStatus"
                         }
@@ -113,6 +96,29 @@ const docTemplate = `{
                     "Analytics"
                 ],
                 "summary": "Get Countries",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "app tracking ID",
+                        "name": "trackingID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "start date",
+                        "name": "startDate",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "end date",
+                        "name": "endDate",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "stats fetched successfully",
@@ -120,8 +126,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/main.CountryResponse"
                         }
                     },
-                    "401": {
-                        "description": "userID not found in context",
+                    "400": {
+                        "description": "invalid request paramaters",
                         "schema": {
                             "$ref": "#/definitions/main.APIStatus"
                         }
@@ -153,6 +159,29 @@ const docTemplate = `{
                     "Analytics"
                 ],
                 "summary": "Get Devices",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "app tracking ID",
+                        "name": "trackingID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "start date",
+                        "name": "startDate",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "end date",
+                        "name": "endDate",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "stats fetched successfully",
@@ -160,8 +189,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/main.DeviceResponse"
                         }
                     },
-                    "401": {
-                        "description": "userID not found in context",
+                    "400": {
+                        "description": "invalid request paramaters",
                         "schema": {
                             "$ref": "#/definitions/main.APIStatus"
                         }
@@ -193,6 +222,29 @@ const docTemplate = `{
                     "Analytics"
                 ],
                 "summary": "Get OS",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "app tracking ID",
+                        "name": "trackingID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "start date",
+                        "name": "startDate",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "end date",
+                        "name": "endDate",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "stats fetched successfully",
@@ -200,8 +252,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/main.OSResponse"
                         }
                     },
-                    "401": {
-                        "description": "userID not found in context",
+                    "400": {
+                        "description": "invalid request paramaters",
                         "schema": {
                             "$ref": "#/definitions/main.APIStatus"
                         }
@@ -233,6 +285,29 @@ const docTemplate = `{
                     "Analytics"
                 ],
                 "summary": "Get Pages",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "app tracking ID",
+                        "name": "trackingID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "start date",
+                        "name": "startDate",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "end date",
+                        "name": "endDate",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "stats fetched successfully",
@@ -240,8 +315,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/main.PageResponse"
                         }
                     },
-                    "401": {
-                        "description": "userID not found in context",
+                    "400": {
+                        "description": "invalid request paramaters",
                         "schema": {
                             "$ref": "#/definitions/main.APIStatus"
                         }
@@ -273,6 +348,29 @@ const docTemplate = `{
                     "Analytics"
                 ],
                 "summary": "Get Referrals",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "app tracking ID",
+                        "name": "trackingID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "start date",
+                        "name": "startDate",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "end date",
+                        "name": "endDate",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "stats fetched successfully",
@@ -280,8 +378,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/main.ReferralResponse"
                         }
                     },
-                    "401": {
-                        "description": "userID not found in context",
+                    "400": {
+                        "description": "invalid request paramaters",
                         "schema": {
                             "$ref": "#/definitions/main.APIStatus"
                         }
@@ -338,21 +436,118 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/apps": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves user apps",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Apps"
+                ],
+                "summary": "Get Apps",
+                "responses": {
+                    "200": {
+                        "description": "apps fetched successfully",
+                        "schema": {
+                            "$ref": "#/definitions/main.AppResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "userID not found in context",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    },
+                    "500": {
+                        "description": "failed to fetch apps",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "creates an app",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Apps"
+                ],
+                "summary": "Create App",
+                "parameters": [
+                    {
+                        "description": "app name",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateAppRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "app created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/main.AppResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    },
+                    "401": {
+                        "description": "userID not found in context",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    },
+                    "500": {
+                        "description": "failed to create app",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "main.APIResponse": {
+        "main.APIStatus": {
             "type": "object",
             "properties": {
-                "data": {},
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "main.APIStatus": {
+        "main.AppResponse": {
             "type": "object",
             "properties": {
+                "data": {
+                    "$ref": "#/definitions/types.App"
+                },
                 "message": {
                     "type": "string"
                 }
@@ -376,6 +571,14 @@ const docTemplate = `{
                     "$ref": "#/definitions/types.CountryStats"
                 },
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.CreateAppRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
                     "type": "string"
                 }
             }
@@ -420,6 +623,20 @@ const docTemplate = `{
                     "$ref": "#/definitions/types.ReferralStats"
                 },
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.App": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "trackingID": {
                     "type": "string"
                 }
             }
@@ -490,17 +707,24 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
+	Version:          "1.0",
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Minalytics API",
+	Description:      "Analytics API for tracking and managing app data.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

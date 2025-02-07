@@ -1,12 +1,13 @@
 definitions:
-  main.APIResponse:
+  main.APIStatus:
     properties:
-      data: {}
       message:
         type: string
     type: object
-  main.APIStatus:
+  main.AppResponse:
     properties:
+      data:
+        $ref: '#/definitions/types.App'
       message:
         type: string
     type: object
@@ -22,6 +23,11 @@ definitions:
       data:
         $ref: '#/definitions/types.CountryStats'
       message:
+        type: string
+    type: object
+  main.CreateAppRequest:
+    properties:
+      name:
         type: string
     type: object
   main.DeviceResponse:
@@ -50,6 +56,15 @@ definitions:
       data:
         $ref: '#/definitions/types.ReferralStats'
       message:
+        type: string
+    type: object
+  types.App:
+    properties:
+      created_at:
+        type: string
+      name:
+        type: string
+      trackingID:
         type: string
     type: object
   types.BrowserStats:
@@ -96,37 +111,31 @@ definitions:
     type: object
 info:
   contact: {}
+  description: Analytics API for tracking and managing app data.
+  title: Minalytics API
+  version: "1.0"
 paths:
-  /account/trackingID:
-    get:
-      consumes:
-      - application/json
-      description: Retrieves trackingID
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: tracking ID fetched successfully
-          schema:
-            $ref: '#/definitions/main.APIResponse'
-        "401":
-          description: userID not found in context
-          schema:
-            $ref: '#/definitions/main.APIStatus'
-        "500":
-          description: failed to fetch trackingID
-          schema:
-            $ref: '#/definitions/main.APIStatus'
-      security:
-      - BearerAuth: []
-      summary: Get Tracking ID
-      tags:
-      - Account
   /analytics/browsers:
     get:
       consumes:
       - application/json
       description: Retrieves browser stats
+      parameters:
+      - description: app tracking ID
+        in: query
+        name: trackingID
+        required: true
+        type: string
+      - description: start date
+        in: query
+        name: startDate
+        required: true
+        type: string
+      - description: end date
+        in: query
+        name: endDate
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -134,8 +143,8 @@ paths:
           description: stats fetched successfully
           schema:
             $ref: '#/definitions/main.BrowserResponse'
-        "401":
-          description: userID not found in context
+        "400":
+          description: invalid request paramaters
           schema:
             $ref: '#/definitions/main.APIStatus'
         "500":
@@ -152,6 +161,22 @@ paths:
       consumes:
       - application/json
       description: Retrieves country stats
+      parameters:
+      - description: app tracking ID
+        in: query
+        name: trackingID
+        required: true
+        type: string
+      - description: start date
+        in: query
+        name: startDate
+        required: true
+        type: string
+      - description: end date
+        in: query
+        name: endDate
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -159,8 +184,8 @@ paths:
           description: stats fetched successfully
           schema:
             $ref: '#/definitions/main.CountryResponse'
-        "401":
-          description: userID not found in context
+        "400":
+          description: invalid request paramaters
           schema:
             $ref: '#/definitions/main.APIStatus'
         "500":
@@ -177,6 +202,22 @@ paths:
       consumes:
       - application/json
       description: Retrieves device stats
+      parameters:
+      - description: app tracking ID
+        in: query
+        name: trackingID
+        required: true
+        type: string
+      - description: start date
+        in: query
+        name: startDate
+        required: true
+        type: string
+      - description: end date
+        in: query
+        name: endDate
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -184,8 +225,8 @@ paths:
           description: stats fetched successfully
           schema:
             $ref: '#/definitions/main.DeviceResponse'
-        "401":
-          description: userID not found in context
+        "400":
+          description: invalid request paramaters
           schema:
             $ref: '#/definitions/main.APIStatus'
         "500":
@@ -202,6 +243,22 @@ paths:
       consumes:
       - application/json
       description: Retrieves operating system stats
+      parameters:
+      - description: app tracking ID
+        in: query
+        name: trackingID
+        required: true
+        type: string
+      - description: start date
+        in: query
+        name: startDate
+        required: true
+        type: string
+      - description: end date
+        in: query
+        name: endDate
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -209,8 +266,8 @@ paths:
           description: stats fetched successfully
           schema:
             $ref: '#/definitions/main.OSResponse'
-        "401":
-          description: userID not found in context
+        "400":
+          description: invalid request paramaters
           schema:
             $ref: '#/definitions/main.APIStatus'
         "500":
@@ -227,6 +284,22 @@ paths:
       consumes:
       - application/json
       description: Retrieves page stats
+      parameters:
+      - description: app tracking ID
+        in: query
+        name: trackingID
+        required: true
+        type: string
+      - description: start date
+        in: query
+        name: startDate
+        required: true
+        type: string
+      - description: end date
+        in: query
+        name: endDate
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -234,8 +307,8 @@ paths:
           description: stats fetched successfully
           schema:
             $ref: '#/definitions/main.PageResponse'
-        "401":
-          description: userID not found in context
+        "400":
+          description: invalid request paramaters
           schema:
             $ref: '#/definitions/main.APIStatus'
         "500":
@@ -252,6 +325,22 @@ paths:
       consumes:
       - application/json
       description: Retrieves referral stats
+      parameters:
+      - description: app tracking ID
+        in: query
+        name: trackingID
+        required: true
+        type: string
+      - description: start date
+        in: query
+        name: startDate
+        required: true
+        type: string
+      - description: end date
+        in: query
+        name: endDate
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -259,8 +348,8 @@ paths:
           description: stats fetched successfully
           schema:
             $ref: '#/definitions/main.ReferralResponse'
-        "401":
-          description: userID not found in context
+        "400":
+          description: invalid request paramaters
           schema:
             $ref: '#/definitions/main.APIStatus'
         "500":
@@ -301,4 +390,69 @@ paths:
       summary: Track an event
       tags:
       - Analytics
+  /apps:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves user apps
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: apps fetched successfully
+          schema:
+            $ref: '#/definitions/main.AppResponse'
+        "401":
+          description: userID not found in context
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+        "500":
+          description: failed to fetch apps
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+      security:
+      - BearerAuth: []
+      summary: Get Apps
+      tags:
+      - Apps
+    post:
+      consumes:
+      - application/json
+      description: creates an app
+      parameters:
+      - description: app name
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateAppRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: app created successfully
+          schema:
+            $ref: '#/definitions/main.AppResponse'
+        "400":
+          description: invalid request body
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+        "401":
+          description: userID not found in context
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+        "500":
+          description: failed to create app
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+      security:
+      - BearerAuth: []
+      summary: Create App
+      tags:
+      - Apps
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
