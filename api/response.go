@@ -13,6 +13,11 @@ type APIStatus struct {
 	Message    string `json:"message"`
 }
 
+type AppResponse struct {
+	Data types.App
+	APIStatus
+}
+
 type ReferralResponse struct {
 	Data types.ReferralStats
 	APIStatus
@@ -41,6 +46,10 @@ type DeviceResponse struct {
 type OSResponse struct {
 	Data types.OSStats
 	APIStatus
+}
+
+type CreateAppRequest struct {
+	Name string `json:"name"`
 }
 
 func NewSuccessResponse(data interface{}, code int, message string) APIResponse {

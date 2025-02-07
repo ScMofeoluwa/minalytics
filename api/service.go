@@ -18,6 +18,7 @@ import (
 )
 
 var ErrInvalidToken = errors.New("invalid token")
+var ErrAppNotFound = errors.New("app not found")
 
 type AnalyticsService struct {
 	Queries *database.Queries
@@ -40,7 +41,7 @@ func (s *AnalyticsService) SignIn(ctx context.Context, email string) (string, er
 }
 
 func (s *AnalyticsService) TrackEvent(ctx context.Context, data types.EventPayload) error {
-	if _, err := s.Queries.GetUserByTrackingID(ctx, data.Tracking.TrackingID); err != nil {
+	if _, err := s.Queries.GetAppByTrackingID(ctx, data.Tracking.TrackingID); err != nil {
 		return err
 	}
 
@@ -65,20 +66,47 @@ func (s *AnalyticsService) TrackEvent(ctx context.Context, data types.EventPaylo
 	return nil
 }
 
-func (s *AnalyticsService) GetTrackingID(ctx context.Context, userID uuid.UUID) (string, error) {
-	user, err := s.Queries.GetUserTrackingID(ctx, userID)
-	if err != nil {
-		return "", err
+func (s *AnalyticsService) CreateApp(ctx context.Context, userID uuid.UUID, name string) (*types.App, error) {
+	params := database.CreateAppParams{
+		UserID: userID,
+		Name:   name,
 	}
 
-	return user.String(), nil
+	app_, err := s.Queries.CreateApp(ctx, params)
+	if err != nil {
+		return &types.App{}, err
+	}
+
+	app := &types.App{
+		Name:       app_.Name,
+		TrackingID: app_.TrackingID,
+		CreatedAt:  app_.CreatedAt,
+	}
+	return app, nil
+}
+
+func (s *AnalyticsService) GetApps(ctx context.Context, userID uuid.UUID) ([]types.App, error) {
+	apps_, err := s.Queries.GetApps(ctx, userID)
+	if err != nil {
+		return []types.App{}, err
+	}
+
+	apps := make([]types.App, 0, len(apps_))
+	for _, row := range apps_ {
+		apps = append(apps, types.App{
+			Name:       row.Name,
+			CreatedAt:  row.CreatedAt,
+			TrackingID: row.TrackingID,
+		})
+	}
+	return apps, nil
 }
 
 func (s *AnalyticsService) GetReferrals(ctx context.Context, data types.RequestPayload) ([]types.ReferralStats, error) {
 	params := database.GetReferralsParams{
-		ID:          data.UserID,
-		Timestamp:   data.StartTime,
-		Timestamp_2: data.EndTime,
+		TrackingID:  data.TrackingID,
+		Timestamp:   data.StartDate,
+		Timestamp_2: data.EndDate,
 	}
 
 	stats, err := s.Queries.GetReferrals(ctx, params)
@@ -99,9 +127,9 @@ func (s *AnalyticsService) GetReferrals(ctx context.Context, data types.RequestP
 
 func (s *AnalyticsService) GetPages(ctx context.Context, data types.RequestPayload) ([]types.PageStats, error) {
 	params := database.GetPagesParams{
-		ID:          data.UserID,
-		Timestamp:   data.StartTime,
-		Timestamp_2: data.EndTime,
+		TrackingID:  data.TrackingID,
+		Timestamp:   data.StartDate,
+		Timestamp_2: data.EndDate,
 	}
 
 	stats, err := s.Queries.GetPages(ctx, params)
@@ -116,8 +144,13 @@ func (s *AnalyticsService) GetPages(ctx context.Context, data types.RequestPaylo
 			return nil, err
 		}
 
+		path := url.Path
+		if url.Path == "" {
+			path = "/"
+		}
+
 		pageStats = append(pageStats, types.PageStats{
-			Path:         url.Path,
+			Path:         path,
 			VisitorCount: int(row.VisitorCount),
 		})
 	}
@@ -127,9 +160,9 @@ func (s *AnalyticsService) GetPages(ctx context.Context, data types.RequestPaylo
 
 func (s *AnalyticsService) GetBrowsers(ctx context.Context, data types.RequestPayload) ([]types.BrowserStats, error) {
 	params := database.GetBrowsersParams{
-		ID:          data.UserID,
-		Timestamp:   data.StartTime,
-		Timestamp_2: data.EndTime,
+		TrackingID:  data.TrackingID,
+		Timestamp:   data.StartDate,
+		Timestamp_2: data.EndDate,
 	}
 
 	stats, err := s.Queries.GetBrowsers(ctx, params)
@@ -150,9 +183,9 @@ func (s *AnalyticsService) GetBrowsers(ctx context.Context, data types.RequestPa
 
 func (s *AnalyticsService) GetCountries(ctx context.Context, data types.RequestPayload) ([]types.CountryStats, error) {
 	params := database.GetCountriesParams{
-		ID:          data.UserID,
-		Timestamp:   data.StartTime,
-		Timestamp_2: data.EndTime,
+		TrackingID:  data.TrackingID,
+		Timestamp:   data.StartDate,
+		Timestamp_2: data.EndDate,
 	}
 
 	stats, err := s.Queries.GetCountries(ctx, params)
@@ -173,9 +206,9 @@ func (s *AnalyticsService) GetCountries(ctx context.Context, data types.RequestP
 
 func (s *AnalyticsService) GetDevices(ctx context.Context, data types.RequestPayload) ([]types.DeviceStats, error) {
 	params := database.GetDevicesParams{
-		ID:          data.UserID,
-		Timestamp:   data.StartTime,
-		Timestamp_2: data.EndTime,
+		TrackingID:  data.TrackingID,
+		Timestamp:   data.StartDate,
+		Timestamp_2: data.EndDate,
 	}
 
 	stats, err := s.Queries.GetDevices(ctx, params)
@@ -196,9 +229,9 @@ func (s *AnalyticsService) GetDevices(ctx context.Context, data types.RequestPay
 
 func (s *AnalyticsService) GetOS(ctx context.Context, data types.RequestPayload) ([]types.OSStats, error) {
 	params := database.GetOSParams{
-		ID:          data.UserID,
-		Timestamp:   data.StartTime,
-		Timestamp_2: data.EndTime,
+		TrackingID:  data.TrackingID,
+		Timestamp:   data.StartDate,
+		Timestamp_2: data.EndDate,
 	}
 
 	stats, err := s.Queries.GetOS(ctx, params)
@@ -243,6 +276,17 @@ func (s *AnalyticsService) ParseUserAgent(ua string) *types.UserAgentDetails {
 	}
 }
 
+func (s *AnalyticsService) ValidateAppAccess(ctx context.Context, userID, trackingID uuid.UUID) error {
+	app, err := s.Queries.GetAppByTrackingID(ctx, trackingID)
+	if err != nil {
+		return err
+	}
+	if app.TrackingID != trackingID {
+		return ErrAppNotFound
+	}
+	return nil
+}
+
 func CreateJWT(userId string) (string, error) {
 	claims := jwt.MapClaims{
 		"sub": userId,
@@ -256,8 +300,7 @@ func CreateJWT(userId string) (string, error) {
 
 func VerifyJWT(token string) (jwt.MapClaims, error) {
 	keyfunc := func(token *jwt.Token) (interface{}, error) {
-		_, ok := token.Method.(*jwt.SigningMethodHMAC)
-		if !ok {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, ErrInvalidToken
 		}
 		return []byte(viper.GetString("TokenSecret")), nil

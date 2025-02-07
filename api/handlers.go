@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 	"time"
 
@@ -24,6 +25,19 @@ func NewAnalyticsHandler(service *AnalyticsService, logger *zap.Logger) *Analyti
 	return &AnalyticsHandler{
 		service: service,
 		logger:  logger,
+	}
+}
+
+func (h *AnalyticsHandler) Home(ctx *gin.Context) {
+	tmpl, err := template.ParseFiles(("templates/index.html"))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load template"})
+		return
+	}
+	err = tmpl.Execute(ctx.Writer, nil)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to render template"})
+		return
 	}
 }
 
@@ -91,31 +105,66 @@ func (h *AnalyticsHandler) TrackEvent(ctx *gin.Context) APIResponse {
 	return NewSuccessResponse(nil, http.StatusOK, "event tracked successfully")
 }
 
-// @Summary Get Tracking ID
-// @Description Retrieves trackingID
-// @Tags Account
+// @Summary Create App
+// @Description creates an app
+// @Tags Apps
 // @Accept  json
 // @Produce  json
 // @Security BearerAuth
-// @Success 200 {object} APIResponse "tracking ID fetched successfully"
+// @Param request body CreateAppRequest true "app name"
+// @Success 200 {object} AppResponse "app created successfully"
+// @Failure 400 {object} APIStatus "invalid request body"
 // @Failure 401 {object} APIStatus "userID not found in context"
-// @Failure 500 {object} APIStatus "failed to fetch trackingID"
-// @Router /account/trackingID [get]
-func (h *AnalyticsHandler) GetTrackingID(ctx *gin.Context) APIResponse {
+// @Failure 500 {object} APIStatus "failed to create app"
+// @Router /apps [post]
+func (h *AnalyticsHandler) CreateApp(ctx *gin.Context) APIResponse {
 	userID, exists := ctx.Get("userID")
 	if !exists {
 		h.logger.Warn("userID not found in context")
 		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
 	}
-
 	user := userID.(uuid.UUID)
-	trackingID, err := h.service.GetTrackingID(ctx, user)
-	if err != nil {
-		h.logger.Error("failed to get trackingID", zap.Error(err))
-		return NewErrorResponse(http.StatusInternalServerError, "failed to fetch trackingID")
+
+	var req CreateAppRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		h.logger.Error("invalid request body", zap.Error(err))
+		return NewErrorResponse(http.StatusBadRequest, "invalid request body")
 	}
 
-	return NewSuccessResponse(trackingID, http.StatusOK, "trackingID fetched successfully")
+	app, err := h.service.CreateApp(ctx, user, req.Name)
+	if err != nil {
+		h.logger.Error("failed to create app", zap.Error(err))
+		return NewErrorResponse(http.StatusInternalServerError, "failed to create app")
+	}
+
+	return NewSuccessResponse(app, http.StatusOK, "app created successfully")
+}
+
+// @Summary Get Apps
+// @Description Retrieves user apps
+// @Tags Apps
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Success 200 {object} AppResponse "apps fetched successfully"
+// @Failure 401 {object} APIStatus "userID not found in context"
+// @Failure 500 {object} APIStatus "failed to fetch apps"
+// @Router /apps [get]
+func (h *AnalyticsHandler) GetApps(ctx *gin.Context) APIResponse {
+	userID, exists := ctx.Get("userID")
+	if !exists {
+		h.logger.Warn("userID not found in context")
+		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
+	}
+	user := userID.(uuid.UUID)
+
+	apps, err := h.service.GetApps(ctx, user)
+	if err != nil {
+		h.logger.Error("failed to fetch apps", zap.Error(err))
+		return NewErrorResponse(http.StatusInternalServerError, "failed to fetch apps")
+	}
+
+	return NewSuccessResponse(apps, http.StatusOK, "apps fetched successfully")
 }
 
 // @Summary Get Referrals
@@ -123,23 +172,26 @@ func (h *AnalyticsHandler) GetTrackingID(ctx *gin.Context) APIResponse {
 // @Tags Analytics
 // @Accept  json
 // @Produce  json
+// @Param trackingID query string true "app tracking ID"
+// @Param startDate query string true "start date"
+// @Param endDate query string true "end date"
 // @Security BearerAuth
 // @Success 200 {object} ReferralResponse "stats fetched successfully"
-// @Failure 401 {object} APIStatus "userID not found in context"
+// @Failure 400 {object} APIStatus "invalid request paramaters"
 // @Failure 500 {object} APIStatus "failed to fetch referrals"
 // @Router /analytics/referrals [get]
 func (h *AnalyticsHandler) GetReferrals(ctx *gin.Context) APIResponse {
-	userID, exists := ctx.Get("userID")
+	trackingID_, exists := ctx.Get("trackingID")
 	if !exists {
-		h.logger.Warn("userID not found in context")
-		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
+		h.logger.Warn("trackingID not found in context")
+		return NewErrorResponse(http.StatusUnauthorized, "trackingID not found in context")
 	}
-	user := userID.(uuid.UUID)
+	trackingID := trackingID_.(uuid.UUID)
 
-	startTime := ctx.Query("startTime")
-	endTime := ctx.Query("endTime")
+	startDate := ctx.Query("startDate")
+	endDate := ctx.Query("endDate")
 
-	payload, err := createRequestPayload(user, startTime, endTime)
+	payload, err := createRequestPayload(trackingID, startDate, endDate)
 	if err != nil {
 		h.logger.Error("invalid request parameters", zap.Error(err))
 		return NewErrorResponse(http.StatusBadRequest, err.Error())
@@ -159,23 +211,26 @@ func (h *AnalyticsHandler) GetReferrals(ctx *gin.Context) APIResponse {
 // @Tags Analytics
 // @Accept  json
 // @Produce  json
+// @Param trackingID query string true "app tracking ID"
+// @Param startDate query string true "start date"
+// @Param endDate query string true "end date"
 // @Security BearerAuth
 // @Success 200 {object} PageResponse "stats fetched successfully"
-// @Failure 401 {object} APIStatus "userID not found in context"
+// @Failure 400 {object} APIStatus "invalid request paramaters"
 // @Failure 500 {object} APIStatus "failed to fetch pages"
 // @Router /analytics/pages [get]
 func (h *AnalyticsHandler) GetPages(ctx *gin.Context) APIResponse {
-	userID, exists := ctx.Get("userID")
+	trackingID_, exists := ctx.Get("trackingID")
 	if !exists {
-		h.logger.Warn("userID not found in context")
-		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
+		h.logger.Warn("trackingID not found in context")
+		return NewErrorResponse(http.StatusUnauthorized, "trackingID not found in context")
 	}
-	user := userID.(uuid.UUID)
+	trackingID := trackingID_.(uuid.UUID)
 
-	startTime := ctx.Query("startTime")
-	endTime := ctx.Query("endTime")
+	startDate := ctx.Query("startDate")
+	endDate := ctx.Query("endDate")
 
-	payload, err := createRequestPayload(user, startTime, endTime)
+	payload, err := createRequestPayload(trackingID, startDate, endDate)
 	if err != nil {
 		h.logger.Error("invalid request parameters", zap.Error(err))
 		return NewErrorResponse(http.StatusBadRequest, err.Error())
@@ -195,23 +250,26 @@ func (h *AnalyticsHandler) GetPages(ctx *gin.Context) APIResponse {
 // @Tags Analytics
 // @Accept  json
 // @Produce  json
+// @Param trackingID query string true "app tracking ID"
+// @Param startDate query string true "start date"
+// @Param endDate query string true "end date"
 // @Security BearerAuth
 // @Success 200 {object} BrowserResponse "stats fetched successfully"
-// @Failure 401 {object} APIStatus "userID not found in context"
+// @Failure 400 {object} APIStatus "invalid request paramaters"
 // @Failure 500 {object} APIStatus "failed to fetch browsers"
 // @Router /analytics/browsers [get]
 func (h *AnalyticsHandler) GetBrowsers(ctx *gin.Context) APIResponse {
-	userID, exists := ctx.Get("userID")
+	trackingID_, exists := ctx.Get("trackingID")
 	if !exists {
-		h.logger.Warn("userID not found in context")
-		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
+		h.logger.Warn("trackingID not found in context")
+		return NewErrorResponse(http.StatusUnauthorized, "trackingID not found in context")
 	}
-	user := userID.(uuid.UUID)
+	trackingID := trackingID_.(uuid.UUID)
 
-	startTime := ctx.Query("startTime")
-	endTime := ctx.Query("endTime")
+	startDate := ctx.Query("startDate")
+	endDate := ctx.Query("endDate")
 
-	payload, err := createRequestPayload(user, startTime, endTime)
+	payload, err := createRequestPayload(trackingID, startDate, endDate)
 	if err != nil {
 		h.logger.Error("invalid request parameters", zap.Error(err))
 		return NewErrorResponse(http.StatusBadRequest, err.Error())
@@ -231,23 +289,26 @@ func (h *AnalyticsHandler) GetBrowsers(ctx *gin.Context) APIResponse {
 // @Tags Analytics
 // @Accept  json
 // @Produce  json
+// @Param trackingID query string true "app tracking ID"
+// @Param startDate query string true "start date"
+// @Param endDate query string true "end date"
 // @Security BearerAuth
 // @Success 200 {object} CountryResponse "stats fetched successfully"
-// @Failure 401 {object} APIStatus "userID not found in context"
+// @Failure 400 {object} APIStatus "invalid request paramaters"
 // @Failure 500 {object} APIStatus "failed to fetch countries"
 // @Router /analytics/countries [get]
 func (h *AnalyticsHandler) GetCountries(ctx *gin.Context) APIResponse {
-	userID, exists := ctx.Get("userID")
+	trackingID_, exists := ctx.Get("trackingID")
 	if !exists {
-		h.logger.Warn("userID not found in context")
-		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
+		h.logger.Warn("trackingID not found in context")
+		return NewErrorResponse(http.StatusUnauthorized, "trackingID not found in context")
 	}
-	user := userID.(uuid.UUID)
+	trackingID := trackingID_.(uuid.UUID)
 
-	startTime := ctx.Query("startTime")
-	endTime := ctx.Query("endTime")
+	startDate := ctx.Query("startDate")
+	endDate := ctx.Query("endDate")
 
-	payload, err := createRequestPayload(user, startTime, endTime)
+	payload, err := createRequestPayload(trackingID, startDate, endDate)
 	if err != nil {
 		h.logger.Error("invalid request parameters", zap.Error(err))
 		return NewErrorResponse(http.StatusBadRequest, err.Error())
@@ -267,23 +328,26 @@ func (h *AnalyticsHandler) GetCountries(ctx *gin.Context) APIResponse {
 // @Tags Analytics
 // @Accept  json
 // @Produce  json
+// @Param trackingID query string true "app tracking ID"
+// @Param startDate query string true "start date"
+// @Param endDate query string true "end date"
 // @Security BearerAuth
 // @Success 200 {object} DeviceResponse "stats fetched successfully"
-// @Failure 401 {object} APIStatus "userID not found in context"
+// @Failure 400 {object} APIStatus "invalid request paramaters"
 // @Failure 500 {object} APIStatus "failed to fetch devices"
 // @Router /analytics/devices [get]
 func (h *AnalyticsHandler) GetDevices(ctx *gin.Context) APIResponse {
-	userID, exists := ctx.Get("userID")
+	trackingID_, exists := ctx.Get("trackingID")
 	if !exists {
-		h.logger.Warn("userID not found in context")
-		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
+		h.logger.Warn("trackingID not found in context")
+		return NewErrorResponse(http.StatusUnauthorized, "trackingID not found in context")
 	}
-	user := userID.(uuid.UUID)
+	trackingID := trackingID_.(uuid.UUID)
 
-	startTime := ctx.Query("startTime")
-	endTime := ctx.Query("endTime")
+	startDate := ctx.Query("startDate")
+	endDate := ctx.Query("endDate")
 
-	payload, err := createRequestPayload(user, startTime, endTime)
+	payload, err := createRequestPayload(trackingID, startDate, endDate)
 	if err != nil {
 		h.logger.Error("invalid request parameters", zap.Error(err))
 		return NewErrorResponse(http.StatusBadRequest, err.Error())
@@ -303,23 +367,26 @@ func (h *AnalyticsHandler) GetDevices(ctx *gin.Context) APIResponse {
 // @Tags Analytics
 // @Accept  json
 // @Produce  json
+// @Param trackingID query string true "app tracking ID"
+// @Param startDate query string true "start date"
+// @Param endDate query string true "end date"
 // @Security BearerAuth
 // @Success 200 {object} OSResponse "stats fetched successfully"
-// @Failure 401 {object} APIStatus "userID not found in context"
+// @Failure 400 {object} APIStatus "invalid request paramaters"
 // @Failure 500 {object} APIStatus "failed to fetch operating systems"
 // @Router /analytics/os [get]
 func (h *AnalyticsHandler) GetOS(ctx *gin.Context) APIResponse {
-	userID, exists := ctx.Get("userID")
+	trackingID_, exists := ctx.Get("trackingID")
 	if !exists {
-		h.logger.Warn("userID not found in context")
-		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
+		h.logger.Warn("trackingID not found in context")
+		return NewErrorResponse(http.StatusUnauthorized, "trackingID not found in context")
 	}
-	user := userID.(uuid.UUID)
+	trackingID := trackingID_.(uuid.UUID)
 
-	startTime := ctx.Query("startTime")
-	endTime := ctx.Query("endTime")
+	startDate := ctx.Query("startDate")
+	endDate := ctx.Query("endDate")
 
-	payload, err := createRequestPayload(user, startTime, endTime)
+	payload, err := createRequestPayload(trackingID, startDate, endDate)
 	if err != nil {
 		h.logger.Error("invalid request parameters", zap.Error(err))
 		return NewErrorResponse(http.StatusBadRequest, err.Error())
@@ -334,26 +401,26 @@ func (h *AnalyticsHandler) GetOS(ctx *gin.Context) APIResponse {
 	return NewSuccessResponse(stats, http.StatusOK, "stats fetched successfully")
 }
 
-func createRequestPayload(userID uuid.UUID, startTimeStr, endTimeStr string) (types.RequestPayload, error) {
-	parsedTimes, err := parseDates(startTimeStr, endTimeStr)
+func createRequestPayload(trackingID uuid.UUID, startDateStr, endDateStr string) (types.RequestPayload, error) {
+	parsedTimes, err := parseDates(startDateStr, endDateStr)
 	if err != nil {
 		return types.RequestPayload{}, err
 	}
 
-	startTime, endTime := parsedTimes[0], parsedTimes[1]
+	startDate, endDate := parsedTimes[0], parsedTimes[1]
 
-	if startTime.After(endTime) {
-		return types.RequestPayload{}, fmt.Errorf("startTime cannot be after endTime")
+	if startDate.After(endDate) {
+		return types.RequestPayload{}, fmt.Errorf("startDate cannot be after endDate")
 	}
 
-	if startTime.Equal(endTime) {
-		return types.RequestPayload{}, fmt.Errorf("startTime and endTime cannot be the same")
+	if startDate.Equal(endDate) {
+		return types.RequestPayload{}, fmt.Errorf("startDate and endDate cannot be the same")
 	}
 
 	return types.RequestPayload{
-		UserID:    userID,
-		StartTime: startTime,
-		EndTime:   endTime.Add(24 * time.Hour),
+		TrackingID: trackingID,
+		StartDate:  startDate,
+		EndDate:    endDate.Add(24 * time.Hour),
 	}, nil
 }
 

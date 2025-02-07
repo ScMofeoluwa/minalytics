@@ -9,18 +9,18 @@ import (
 type EventDetails map[string]interface{}
 
 type TrackingData struct {
-	VisitorID  string
-	TrackingID uuid.UUID
-	Url        string
-	Referrer   string
-	Country    string
-	Ua         string
-	Details    EventDetails
+	VisitorID  string       `json:"visitorID"`
+	TrackingID uuid.UUID    `json:"trackingID"`
+	Url        string       `json:"url"`
+	Referrer   string       `json:"referrer"`
+	Country    string       `json:"country"`
+	Ua         string       `json:"ua"`
+	Details    EventDetails `json:"details"`
 }
 
 type EventPayload struct {
-	Tracking TrackingData
-	Type     string
+	Tracking TrackingData `json:"tracking"`
+	Type     string       `json:"type"`
 }
 
 type GeoLocation struct {
@@ -34,6 +34,12 @@ type UserAgentDetails struct {
 	Browser         string
 	Device          string
 	OperatingSystem string
+}
+
+type App struct {
+	Name       string    `json:"name"`
+	TrackingID uuid.UUID `json:"trackingID"`
+	CreatedAt  time.Time `json:"created_at"`
 }
 
 type ReferralStats struct {
@@ -67,7 +73,8 @@ type OSStats struct {
 }
 
 type RequestPayload struct {
-	UserID    uuid.UUID
-	StartTime time.Time
-	EndTime   time.Time
+	UserID     uuid.UUID
+	TrackingID uuid.UUID
+	StartDate  time.Time
+	EndDate    time.Time
 }

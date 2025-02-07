@@ -18,6 +18,12 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+// @title Minalytics API
+// @version 1.0
+// @description Analytics API for tracking and managing app data.
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 	logger, err := zap.NewProduction()
 	if err != nil {
@@ -61,8 +67,8 @@ func main() {
 
 	r := gin.Default()
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	r.GET("/", analyticsHandler.Home)
 	r.GET("/analytics/track", WrapHandler(analyticsHandler.TrackEvent))
-	r.GET("/account/trackingID", WrapHandler(analyticsHandler.GetTrackingID))
 
 	auth := r.Group("auth")
 	{
@@ -70,8 +76,16 @@ func main() {
 		auth.GET(":provider/callback", WrapHandler(analyticsHandler.Callback))
 	}
 
+	apps := r.Group("apps")
+	apps.Use(JWTMiddleware())
+	{
+		apps.GET("/", WrapHandler(analyticsHandler.GetApps))
+		apps.POST("/", WrapHandler(analyticsHandler.CreateApp))
+	}
+
 	analytics := r.Group("analytics")
 	analytics.Use(JWTMiddleware())
+	analytics.Use(AppAccessMiddleware(analyticsService))
 	{
 		analytics.GET("referrals", WrapHandler(analyticsHandler.GetReferrals))
 		analytics.GET("pages", WrapHandler(analyticsHandler.GetPages))
