@@ -2,8 +2,17 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE users (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  tracking_id UUID DEFAULT uuid_generate_v4() UNIQUE NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE apps (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  tracking_id UUID DEFAULT uuid_generate_v4() UNIQUE NOT NULL,
+  user_id UUID NOT NULL,
+  name VARCHAR(255) NOT NULL UNIQUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+  CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE events (
@@ -20,7 +29,7 @@ CREATE TABLE events (
   details JSONB,
   timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-  CONSTRAINT fk_events_users FOREIGN KEY (tracking_id) REFERENCES users(tracking_id) ON DELETE CASCADE
+  CONSTRAINT fk_app FOREIGN KEY (tracking_id) REFERENCES apps(tracking_id) ON DELETE CASCADE
 );
 
 CREATE INDEX idx_visitor_id ON events(visitor_id);

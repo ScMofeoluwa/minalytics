@@ -11,6 +11,14 @@ import (
 	"github.com/google/uuid"
 )
 
+type App struct {
+	ID         uuid.UUID `json:"id"`
+	TrackingID uuid.UUID `json:"tracking_id"`
+	UserID     uuid.UUID `json:"user_id"`
+	Name       string    `json:"name"`
+	CreatedAt  time.Time `json:"created_at"`
+}
+
 type Event struct {
 	ID              uuid.UUID          `json:"id"`
 	TrackingID      uuid.UUID          `json:"tracking_id"`
@@ -27,7 +35,6 @@ type Event struct {
 }
 
 type User struct {
-	ID         uuid.UUID `json:"id"`
-	TrackingID uuid.UUID `json:"tracking_id"`
-	Email      string    `json:"email"`
+	ID    uuid.UUID `json:"id"`
+	Email string    `json:"email"`
 }

@@ -13,6 +13,31 @@ import (
 	"github.com/google/uuid"
 )
 
+const createApp = `-- name: CreateApp :one
+INSERT INTO apps (
+  name, user_id
+) VALUES ( $1, $2 )
+RETURNING id, tracking_id, user_id, name, created_at
+`
+
+type CreateAppParams struct {
+	Name   string    `json:"name"`
+	UserID uuid.UUID `json:"user_id"`
+}
+
+func (q *Queries) CreateApp(ctx context.Context, arg CreateAppParams) (App, error) {
+	row := q.db.QueryRow(ctx, createApp, arg.Name, arg.UserID)
+	var i App
+	err := row.Scan(
+		&i.ID,
+		&i.TrackingID,
+		&i.UserID,
+		&i.Name,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const createEvent = `-- name: CreateEvent :exec
 INSERT INTO events (
   visitor_id, tracking_id, event_type, url, referrer, country, browser, device, operating_system, details
@@ -48,16 +73,63 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error 
 	return err
 }
 
+const getAppByTrackingID = `-- name: GetAppByTrackingID :one
+SELECT id, tracking_id, user_id, name, created_at FROM apps WHERE apps.tracking_id = $1
+`
+
+func (q *Queries) GetAppByTrackingID(ctx context.Context, trackingID uuid.UUID) (App, error) {
+	row := q.db.QueryRow(ctx, getAppByTrackingID, trackingID)
+	var i App
+	err := row.Scan(
+		&i.ID,
+		&i.TrackingID,
+		&i.UserID,
+		&i.Name,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getApps = `-- name: GetApps :many
+SELECT id, tracking_id, user_id, name, created_at FROM apps WHERE apps.user_id = $1
+`
+
+func (q *Queries) GetApps(ctx context.Context, userID uuid.UUID) ([]App, error) {
+	rows, err := q.db.Query(ctx, getApps, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []App{}
+	for rows.Next() {
+		var i App
+		if err := rows.Scan(
+			&i.ID,
+			&i.TrackingID,
+			&i.UserID,
+			&i.Name,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getBrowsers = `-- name: GetBrowsers :many
 SELECT browser, ROUND((COUNT(DISTINCT visitor_id) * 100.0) / SUM(COUNT(DISTINCT visitor_id)) OVER (), 0) as percentage
-FROM users u JOIN events e ON u.tracking_id = e.tracking_id
-WHERE u.id = $1 AND timestamp BETWEEN $2 AND $3 
+FROM apps a JOIN events e ON a.tracking_id = e.tracking_id
+WHERE a.tracking_id = $1 AND timestamp BETWEEN $2 AND $3 
 GROUP BY browser
 ORDER BY percentage DESC
 `
 
 type GetBrowsersParams struct {
-	ID          uuid.UUID `json:"id"`
+	TrackingID  uuid.UUID `json:"tracking_id"`
 	Timestamp   time.Time `json:"timestamp"`
 	Timestamp_2 time.Time `json:"timestamp_2"`
 }
@@ -68,7 +140,7 @@ type GetBrowsersRow struct {
 }
 
 func (q *Queries) GetBrowsers(ctx context.Context, arg GetBrowsersParams) ([]GetBrowsersRow, error) {
-	rows, err := q.db.Query(ctx, getBrowsers, arg.ID, arg.Timestamp, arg.Timestamp_2)
+	rows, err := q.db.Query(ctx, getBrowsers, arg.TrackingID, arg.Timestamp, arg.Timestamp_2)
 	if err != nil {
 		return nil, err
 	}
@@ -89,14 +161,14 @@ func (q *Queries) GetBrowsers(ctx context.Context, arg GetBrowsersParams) ([]Get
 
 const getCountries = `-- name: GetCountries :many
 SELECT country, ROUND((COUNT(DISTINCT visitor_id) * 100.0) / SUM(COUNT(DISTINCT visitor_id)) OVER (), 0) as percentage
-FROM users u JOIN events e ON u.tracking_id = e.tracking_id
-WHERE u.id = $1 AND timestamp BETWEEN $2 AND $3 
+FROM apps a JOIN events e ON a.tracking_id = e.tracking_id
+WHERE a.tracking_id = $1 AND timestamp BETWEEN $2 AND $3 
 GROUP BY country
 ORDER BY percentage DESC
 `
 
 type GetCountriesParams struct {
-	ID          uuid.UUID `json:"id"`
+	TrackingID  uuid.UUID `json:"tracking_id"`
 	Timestamp   time.Time `json:"timestamp"`
 	Timestamp_2 time.Time `json:"timestamp_2"`
 }
@@ -107,7 +179,7 @@ type GetCountriesRow struct {
 }
 
 func (q *Queries) GetCountries(ctx context.Context, arg GetCountriesParams) ([]GetCountriesRow, error) {
-	rows, err := q.db.Query(ctx, getCountries, arg.ID, arg.Timestamp, arg.Timestamp_2)
+	rows, err := q.db.Query(ctx, getCountries, arg.TrackingID, arg.Timestamp, arg.Timestamp_2)
 	if err != nil {
 		return nil, err
 	}
@@ -128,14 +200,14 @@ func (q *Queries) GetCountries(ctx context.Context, arg GetCountriesParams) ([]G
 
 const getDevices = `-- name: GetDevices :many
 SELECT device, ROUND((COUNT(DISTINCT visitor_id) * 100.0) / SUM(COUNT(DISTINCT visitor_id)) OVER (), 0) as percentage
-FROM users u JOIN events e ON u.tracking_id = e.tracking_id
-WHERE u.id = $1 AND timestamp BETWEEN $2 AND $3 
+FROM apps a JOIN events e ON a.tracking_id = e.tracking_id
+WHERE a.tracking_id = $1 AND timestamp BETWEEN $2 AND $3 
 GROUP BY device
 ORDER BY percentage DESC
 `
 
 type GetDevicesParams struct {
-	ID          uuid.UUID `json:"id"`
+	TrackingID  uuid.UUID `json:"tracking_id"`
 	Timestamp   time.Time `json:"timestamp"`
 	Timestamp_2 time.Time `json:"timestamp_2"`
 }
@@ -146,7 +218,7 @@ type GetDevicesRow struct {
 }
 
 func (q *Queries) GetDevices(ctx context.Context, arg GetDevicesParams) ([]GetDevicesRow, error) {
-	rows, err := q.db.Query(ctx, getDevices, arg.ID, arg.Timestamp, arg.Timestamp_2)
+	rows, err := q.db.Query(ctx, getDevices, arg.TrackingID, arg.Timestamp, arg.Timestamp_2)
 	if err != nil {
 		return nil, err
 	}
@@ -167,14 +239,14 @@ func (q *Queries) GetDevices(ctx context.Context, arg GetDevicesParams) ([]GetDe
 
 const getOS = `-- name: GetOS :many
 SELECT operating_system, ROUND((COUNT(DISTINCT visitor_id) * 100.0) / SUM(COUNT(DISTINCT visitor_id)) OVER (), 0) as percentage
-FROM users u JOIN events e ON u.tracking_id = e.tracking_id
-WHERE u.id = $1 AND timestamp BETWEEN $2 AND $3 
+FROM apps a JOIN events e ON a.tracking_id = e.tracking_id
+WHERE a.tracking_id = $1 AND timestamp BETWEEN $2 AND $3 
 GROUP BY operating_system
 ORDER BY percentage DESC
 `
 
 type GetOSParams struct {
-	ID          uuid.UUID `json:"id"`
+	TrackingID  uuid.UUID `json:"tracking_id"`
 	Timestamp   time.Time `json:"timestamp"`
 	Timestamp_2 time.Time `json:"timestamp_2"`
 }
@@ -185,7 +257,7 @@ type GetOSRow struct {
 }
 
 func (q *Queries) GetOS(ctx context.Context, arg GetOSParams) ([]GetOSRow, error) {
-	rows, err := q.db.Query(ctx, getOS, arg.ID, arg.Timestamp, arg.Timestamp_2)
+	rows, err := q.db.Query(ctx, getOS, arg.TrackingID, arg.Timestamp, arg.Timestamp_2)
 	if err != nil {
 		return nil, err
 	}
@@ -222,14 +294,14 @@ func (q *Queries) GetOrCreateUser(ctx context.Context, email string) (uuid.UUID,
 
 const getPages = `-- name: GetPages :many
 SELECT url, COUNT(DISTINCT visitor_id) AS visitor_count
-FROM users u JOIN events e ON u.tracking_id = e.tracking_id
-WHERE url IS NOT NULL AND e.event_type = 'pageview' AND u.id = $1 AND timestamp BETWEEN $2 AND $3 
+FROM apps a JOIN events e ON a.tracking_id = e.tracking_id
+WHERE url IS NOT NULL AND e.event_type = 'pageview' AND a.tracking_id = $1 AND timestamp BETWEEN $2 AND $3 
 GROUP BY url
 ORDER BY visitor_count DESC
 `
 
 type GetPagesParams struct {
-	ID          uuid.UUID `json:"id"`
+	TrackingID  uuid.UUID `json:"tracking_id"`
 	Timestamp   time.Time `json:"timestamp"`
 	Timestamp_2 time.Time `json:"timestamp_2"`
 }
@@ -240,7 +312,7 @@ type GetPagesRow struct {
 }
 
 func (q *Queries) GetPages(ctx context.Context, arg GetPagesParams) ([]GetPagesRow, error) {
-	rows, err := q.db.Query(ctx, getPages, arg.ID, arg.Timestamp, arg.Timestamp_2)
+	rows, err := q.db.Query(ctx, getPages, arg.TrackingID, arg.Timestamp, arg.Timestamp_2)
 	if err != nil {
 		return nil, err
 	}
@@ -261,14 +333,14 @@ func (q *Queries) GetPages(ctx context.Context, arg GetPagesParams) ([]GetPagesR
 
 const getReferrals = `-- name: GetReferrals :many
 SELECT referrer, COUNT(DISTINCT visitor_id) AS visitor_count
-FROM users u JOIN events e ON u.tracking_id = e.tracking_id
-WHERE referrer IS NOT NULL AND u.id = $1 AND timestamp BETWEEN $2 AND $3 
+FROM apps a JOIN events e ON a.tracking_id = e.tracking_id
+WHERE referrer IS NOT NULL AND a.tracking_id = $1 AND timestamp BETWEEN $2 AND $3 
 GROUP BY referrer
 ORDER BY visitor_count DESC
 `
 
 type GetReferralsParams struct {
-	ID          uuid.UUID `json:"id"`
+	TrackingID  uuid.UUID `json:"tracking_id"`
 	Timestamp   time.Time `json:"timestamp"`
 	Timestamp_2 time.Time `json:"timestamp_2"`
 }
@@ -279,7 +351,7 @@ type GetReferralsRow struct {
 }
 
 func (q *Queries) GetReferrals(ctx context.Context, arg GetReferralsParams) ([]GetReferralsRow, error) {
-	rows, err := q.db.Query(ctx, getReferrals, arg.ID, arg.Timestamp, arg.Timestamp_2)
+	rows, err := q.db.Query(ctx, getReferrals, arg.TrackingID, arg.Timestamp, arg.Timestamp_2)
 	if err != nil {
 		return nil, err
 	}
@@ -296,26 +368,4 @@ func (q *Queries) GetReferrals(ctx context.Context, arg GetReferralsParams) ([]G
 		return nil, err
 	}
 	return items, nil
-}
-
-const getUserByTrackingID = `-- name: GetUserByTrackingID :one
-SELECT id, tracking_id, email FROM users WHERE users.tracking_id = $1
-`
-
-func (q *Queries) GetUserByTrackingID(ctx context.Context, trackingID uuid.UUID) (User, error) {
-	row := q.db.QueryRow(ctx, getUserByTrackingID, trackingID)
-	var i User
-	err := row.Scan(&i.ID, &i.TrackingID, &i.Email)
-	return i, err
-}
-
-const getUserTrackingID = `-- name: GetUserTrackingID :one
-SELECT tracking_id FROM users WHERE users.id = $1
-`
-
-func (q *Queries) GetUserTrackingID(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
-	row := q.db.QueryRow(ctx, getUserTrackingID, id)
-	var tracking_id uuid.UUID
-	err := row.Scan(&tracking_id)
-	return tracking_id, err
 }

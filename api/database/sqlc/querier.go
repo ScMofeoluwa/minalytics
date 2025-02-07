@@ -11,7 +11,10 @@ import (
 )
 
 type Querier interface {
+	CreateApp(ctx context.Context, arg CreateAppParams) (App, error)
 	CreateEvent(ctx context.Context, arg CreateEventParams) error
+	GetAppByTrackingID(ctx context.Context, trackingID uuid.UUID) (App, error)
+	GetApps(ctx context.Context, userID uuid.UUID) ([]App, error)
 	GetBrowsers(ctx context.Context, arg GetBrowsersParams) ([]GetBrowsersRow, error)
 	GetCountries(ctx context.Context, arg GetCountriesParams) ([]GetCountriesRow, error)
 	GetDevices(ctx context.Context, arg GetDevicesParams) ([]GetDevicesRow, error)
@@ -19,8 +22,6 @@ type Querier interface {
 	GetOrCreateUser(ctx context.Context, email string) (uuid.UUID, error)
 	GetPages(ctx context.Context, arg GetPagesParams) ([]GetPagesRow, error)
 	GetReferrals(ctx context.Context, arg GetReferralsParams) ([]GetReferralsRow, error)
-	GetUserByTrackingID(ctx context.Context, trackingID uuid.UUID) (User, error)
-	GetUserTrackingID(ctx context.Context, id uuid.UUID) (uuid.UUID, error)
 }
 
 var _ Querier = (*Queries)(nil)
