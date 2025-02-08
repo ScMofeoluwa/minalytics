@@ -4,26 +4,49 @@ definitions:
       message:
         type: string
     type: object
+  main.App:
+    properties:
+      created_at:
+        type: string
+      name:
+        type: string
+      trackingID:
+        type: string
+    type: object
   main.AppResponse:
     properties:
       data:
-        $ref: '#/definitions/types.App'
+        $ref: '#/definitions/main.App'
       message:
         type: string
     type: object
   main.BrowserResponse:
     properties:
       data:
-        $ref: '#/definitions/types.BrowserStats'
+        $ref: '#/definitions/main.BrowserStats'
       message:
         type: string
+    type: object
+  main.BrowserStats:
+    properties:
+      browser:
+        type: string
+      percentage:
+        type: integer
     type: object
   main.CountryResponse:
     properties:
       data:
-        $ref: '#/definitions/types.CountryStats'
+        $ref: '#/definitions/main.CountryStats'
       message:
         type: string
+    type: object
+  main.CountryStats:
+    properties:
+      country:
+        type: string
+      percentage:
+        type: integer
     type: object
   main.CreateAppRequest:
     properties:
@@ -33,76 +56,53 @@ definitions:
   main.DeviceResponse:
     properties:
       data:
-        $ref: '#/definitions/types.DeviceStats'
+        $ref: '#/definitions/main.DeviceStats'
       message:
         type: string
     type: object
-  main.OSResponse:
-    properties:
-      data:
-        $ref: '#/definitions/types.OSStats'
-      message:
-        type: string
-    type: object
-  main.PageResponse:
-    properties:
-      data:
-        $ref: '#/definitions/types.PageStats'
-      message:
-        type: string
-    type: object
-  main.ReferralResponse:
-    properties:
-      data:
-        $ref: '#/definitions/types.ReferralStats'
-      message:
-        type: string
-    type: object
-  types.App:
-    properties:
-      created_at:
-        type: string
-      name:
-        type: string
-      trackingID:
-        type: string
-    type: object
-  types.BrowserStats:
-    properties:
-      browser:
-        type: string
-      percentage:
-        type: integer
-    type: object
-  types.CountryStats:
-    properties:
-      country:
-        type: string
-      percentage:
-        type: integer
-    type: object
-  types.DeviceStats:
+  main.DeviceStats:
     properties:
       device:
         type: string
       percentage:
         type: integer
     type: object
-  types.OSStats:
+  main.OSResponse:
+    properties:
+      data:
+        $ref: '#/definitions/main.OSStats'
+      message:
+        type: string
+    type: object
+  main.OSStats:
     properties:
       operating_system:
         type: string
       percentage:
         type: integer
     type: object
-  types.PageStats:
+  main.PageResponse:
+    properties:
+      data:
+        $ref: '#/definitions/main.PageStats'
+      message:
+        type: string
+    type: object
+  main.PageStats:
     properties:
       path:
         type: string
       visitor_count:
         type: integer
     type: object
-  types.ReferralStats:
+  main.ReferralResponse:
+    properties:
+      data:
+        $ref: '#/definitions/main.ReferralStats'
+      message:
+        type: string
+    type: object
+  main.ReferralStats:
     properties:
       referrer:
         type: string

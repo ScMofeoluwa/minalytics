@@ -542,11 +542,25 @@ const docTemplate = `{
                 }
             }
         },
+        "main.App": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "trackingID": {
+                    "type": "string"
+                }
+            }
+        },
         "main.AppResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/types.App"
+                    "$ref": "#/definitions/main.App"
                 },
                 "message": {
                     "type": "string"
@@ -557,10 +571,21 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/types.BrowserStats"
+                    "$ref": "#/definitions/main.BrowserStats"
                 },
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "main.BrowserStats": {
+            "type": "object",
+            "properties": {
+                "browser": {
+                    "type": "string"
+                },
+                "percentage": {
+                    "type": "integer"
                 }
             }
         },
@@ -568,10 +593,21 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/types.CountryStats"
+                    "$ref": "#/definitions/main.CountryStats"
                 },
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "main.CountryStats": {
+            "type": "object",
+            "properties": {
+                "country": {
+                    "type": "string"
+                },
+                "percentage": {
+                    "type": "integer"
                 }
             }
         },
@@ -587,83 +623,14 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/types.DeviceStats"
+                    "$ref": "#/definitions/main.DeviceStats"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "main.OSResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "$ref": "#/definitions/types.OSStats"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "main.PageResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "$ref": "#/definitions/types.PageStats"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "main.ReferralResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "$ref": "#/definitions/types.ReferralStats"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "types.App": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "trackingID": {
-                    "type": "string"
-                }
-            }
-        },
-        "types.BrowserStats": {
-            "type": "object",
-            "properties": {
-                "browser": {
-                    "type": "string"
-                },
-                "percentage": {
-                    "type": "integer"
-                }
-            }
-        },
-        "types.CountryStats": {
-            "type": "object",
-            "properties": {
-                "country": {
-                    "type": "string"
-                },
-                "percentage": {
-                    "type": "integer"
-                }
-            }
-        },
-        "types.DeviceStats": {
+        "main.DeviceStats": {
             "type": "object",
             "properties": {
                 "device": {
@@ -674,7 +641,18 @@ const docTemplate = `{
                 }
             }
         },
-        "types.OSStats": {
+        "main.OSResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/main.OSStats"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.OSStats": {
             "type": "object",
             "properties": {
                 "operating_system": {
@@ -685,7 +663,18 @@ const docTemplate = `{
                 }
             }
         },
-        "types.PageStats": {
+        "main.PageResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/main.PageStats"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.PageStats": {
             "type": "object",
             "properties": {
                 "path": {
@@ -696,7 +685,18 @@ const docTemplate = `{
                 }
             }
         },
-        "types.ReferralStats": {
+        "main.ReferralResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/main.ReferralStats"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.ReferralStats": {
             "type": "object",
             "properties": {
                 "referrer": {

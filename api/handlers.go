@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"net/http"
 	"time"
 
@@ -12,8 +11,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/markbates/goth/gothic"
 	"go.uber.org/zap"
-
-	"github.com/ScMofeoluwa/minalytics/types"
 )
 
 type AnalyticsHandler struct {
@@ -25,19 +22,6 @@ func NewAnalyticsHandler(service *AnalyticsService, logger *zap.Logger) *Analyti
 	return &AnalyticsHandler{
 		service: service,
 		logger:  logger,
-	}
-}
-
-func (h *AnalyticsHandler) Home(ctx *gin.Context) {
-	tmpl, err := template.ParseFiles(("templates/index.html"))
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load template"})
-		return
-	}
-	err = tmpl.Execute(ctx.Writer, nil)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to render template"})
-		return
 	}
 }
 
@@ -85,7 +69,7 @@ func (h *AnalyticsHandler) TrackEvent(ctx *gin.Context) APIResponse {
 		return NewErrorResponse(http.StatusBadRequest, "invalid base64 data")
 	}
 
-	var payload types.EventPayload
+	var payload EventPayload
 	if err := json.Unmarshal(decodedData, &payload); err != nil {
 		return NewErrorResponse(http.StatusBadRequest, "invalid JSON data")
 	}
@@ -401,23 +385,23 @@ func (h *AnalyticsHandler) GetOS(ctx *gin.Context) APIResponse {
 	return NewSuccessResponse(stats, http.StatusOK, "stats fetched successfully")
 }
 
-func createRequestPayload(trackingID uuid.UUID, startDateStr, endDateStr string) (types.RequestPayload, error) {
+func createRequestPayload(trackingID uuid.UUID, startDateStr, endDateStr string) (RequestPayload, error) {
 	parsedTimes, err := parseDates(startDateStr, endDateStr)
 	if err != nil {
-		return types.RequestPayload{}, err
+		return RequestPayload{}, err
 	}
 
 	startDate, endDate := parsedTimes[0], parsedTimes[1]
 
 	if startDate.After(endDate) {
-		return types.RequestPayload{}, fmt.Errorf("startDate cannot be after endDate")
+		return RequestPayload{}, fmt.Errorf("startDate cannot be after endDate")
 	}
 
 	if startDate.Equal(endDate) {
-		return types.RequestPayload{}, fmt.Errorf("startDate and endDate cannot be the same")
+		return RequestPayload{}, fmt.Errorf("startDate and endDate cannot be the same")
 	}
 
-	return types.RequestPayload{
+	return RequestPayload{
 		TrackingID: trackingID,
 		StartDate:  startDate,
 		EndDate:    endDate.Add(24 * time.Hour),

@@ -7,7 +7,6 @@ package database
 import (
 	"time"
 
-	types "github.com/ScMofeoluwa/minalytics/types"
 	"github.com/google/uuid"
 )
 
@@ -20,18 +19,18 @@ type App struct {
 }
 
 type Event struct {
-	ID              uuid.UUID          `json:"id"`
-	TrackingID      uuid.UUID          `json:"tracking_id"`
-	VisitorID       string             `json:"visitor_id"`
-	EventType       string             `json:"event_type"`
-	Url             *string            `json:"url"`
-	Referrer        *string            `json:"referrer"`
-	Country         string             `json:"country"`
-	Browser         string             `json:"browser"`
-	Device          string             `json:"device"`
-	OperatingSystem string             `json:"operating_system"`
-	Details         types.EventDetails `json:"details"`
-	Timestamp       time.Time          `json:"timestamp"`
+	ID              uuid.UUID    `json:"id"`
+	TrackingID      uuid.UUID    `json:"tracking_id"`
+	VisitorID       string       `json:"visitor_id"`
+	EventType       string       `json:"event_type"`
+	Url             *string      `json:"url"`
+	Referrer        *string      `json:"referrer"`
+	Country         string       `json:"country"`
+	Browser         string       `json:"browser"`
+	Device          string       `json:"device"`
+	OperatingSystem string       `json:"operating_system"`
+	Details         EventDetails `json:"details"`
+	Timestamp       time.Time    `json:"timestamp"`
 }
 
 type User struct {

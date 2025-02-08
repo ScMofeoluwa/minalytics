@@ -14,7 +14,6 @@ import (
 	"github.com/spf13/viper"
 
 	database "github.com/ScMofeoluwa/minalytics/database/sqlc"
-	"github.com/ScMofeoluwa/minalytics/types"
 )
 
 var ErrInvalidToken = errors.New("invalid token")
@@ -40,7 +39,7 @@ func (s *AnalyticsService) SignIn(ctx context.Context, email string) (string, er
 	return CreateJWT(userId.String())
 }
 
-func (s *AnalyticsService) TrackEvent(ctx context.Context, data types.EventPayload) error {
+func (s *AnalyticsService) TrackEvent(ctx context.Context, data EventPayload) error {
 	if _, err := s.Queries.GetAppByTrackingID(ctx, data.Tracking.TrackingID); err != nil {
 		return err
 	}
@@ -66,7 +65,7 @@ func (s *AnalyticsService) TrackEvent(ctx context.Context, data types.EventPaylo
 	return nil
 }
 
-func (s *AnalyticsService) CreateApp(ctx context.Context, userID uuid.UUID, name string) (*types.App, error) {
+func (s *AnalyticsService) CreateApp(ctx context.Context, userID uuid.UUID, name string) (*App, error) {
 	params := database.CreateAppParams{
 		UserID: userID,
 		Name:   name,
@@ -74,10 +73,10 @@ func (s *AnalyticsService) CreateApp(ctx context.Context, userID uuid.UUID, name
 
 	app_, err := s.Queries.CreateApp(ctx, params)
 	if err != nil {
-		return &types.App{}, err
+		return &App{}, err
 	}
 
-	app := &types.App{
+	app := &App{
 		Name:       app_.Name,
 		TrackingID: app_.TrackingID,
 		CreatedAt:  app_.CreatedAt,
@@ -85,15 +84,15 @@ func (s *AnalyticsService) CreateApp(ctx context.Context, userID uuid.UUID, name
 	return app, nil
 }
 
-func (s *AnalyticsService) GetApps(ctx context.Context, userID uuid.UUID) ([]types.App, error) {
+func (s *AnalyticsService) GetApps(ctx context.Context, userID uuid.UUID) ([]App, error) {
 	apps_, err := s.Queries.GetApps(ctx, userID)
 	if err != nil {
-		return []types.App{}, err
+		return []App{}, err
 	}
 
-	apps := make([]types.App, 0, len(apps_))
+	apps := make([]App, 0, len(apps_))
 	for _, row := range apps_ {
-		apps = append(apps, types.App{
+		apps = append(apps, App{
 			Name:       row.Name,
 			CreatedAt:  row.CreatedAt,
 			TrackingID: row.TrackingID,
@@ -102,7 +101,7 @@ func (s *AnalyticsService) GetApps(ctx context.Context, userID uuid.UUID) ([]typ
 	return apps, nil
 }
 
-func (s *AnalyticsService) GetReferrals(ctx context.Context, data types.RequestPayload) ([]types.ReferralStats, error) {
+func (s *AnalyticsService) GetReferrals(ctx context.Context, data RequestPayload) ([]ReferralStats, error) {
 	params := database.GetReferralsParams{
 		TrackingID:  data.TrackingID,
 		Timestamp:   data.StartDate,
@@ -111,12 +110,12 @@ func (s *AnalyticsService) GetReferrals(ctx context.Context, data types.RequestP
 
 	stats, err := s.Queries.GetReferrals(ctx, params)
 	if err != nil {
-		return []types.ReferralStats{}, err
+		return []ReferralStats{}, err
 	}
 
-	referralStats := make([]types.ReferralStats, 0, len(stats))
+	referralStats := make([]ReferralStats, 0, len(stats))
 	for _, row := range stats {
-		referralStats = append(referralStats, types.ReferralStats{
+		referralStats = append(referralStats, ReferralStats{
 			Referrer:     *row.Referrer,
 			VisitorCount: int(row.VisitorCount),
 		})
@@ -125,7 +124,7 @@ func (s *AnalyticsService) GetReferrals(ctx context.Context, data types.RequestP
 	return referralStats, nil
 }
 
-func (s *AnalyticsService) GetPages(ctx context.Context, data types.RequestPayload) ([]types.PageStats, error) {
+func (s *AnalyticsService) GetPages(ctx context.Context, data RequestPayload) ([]PageStats, error) {
 	params := database.GetPagesParams{
 		TrackingID:  data.TrackingID,
 		Timestamp:   data.StartDate,
@@ -134,10 +133,10 @@ func (s *AnalyticsService) GetPages(ctx context.Context, data types.RequestPaylo
 
 	stats, err := s.Queries.GetPages(ctx, params)
 	if err != nil {
-		return []types.PageStats{}, err
+		return []PageStats{}, err
 	}
 
-	pageStats := make([]types.PageStats, 0, len(stats))
+	pageStats := make([]PageStats, 0, len(stats))
 	for _, row := range stats {
 		url, err := url.Parse(*row.Url)
 		if err != nil {
@@ -149,7 +148,7 @@ func (s *AnalyticsService) GetPages(ctx context.Context, data types.RequestPaylo
 			path = "/"
 		}
 
-		pageStats = append(pageStats, types.PageStats{
+		pageStats = append(pageStats, PageStats{
 			Path:         path,
 			VisitorCount: int(row.VisitorCount),
 		})
@@ -158,7 +157,7 @@ func (s *AnalyticsService) GetPages(ctx context.Context, data types.RequestPaylo
 	return pageStats, nil
 }
 
-func (s *AnalyticsService) GetBrowsers(ctx context.Context, data types.RequestPayload) ([]types.BrowserStats, error) {
+func (s *AnalyticsService) GetBrowsers(ctx context.Context, data RequestPayload) ([]BrowserStats, error) {
 	params := database.GetBrowsersParams{
 		TrackingID:  data.TrackingID,
 		Timestamp:   data.StartDate,
@@ -167,12 +166,12 @@ func (s *AnalyticsService) GetBrowsers(ctx context.Context, data types.RequestPa
 
 	stats, err := s.Queries.GetBrowsers(ctx, params)
 	if err != nil {
-		return []types.BrowserStats{}, err
+		return []BrowserStats{}, err
 	}
 
-	browserStats := make([]types.BrowserStats, 0, len(stats))
+	browserStats := make([]BrowserStats, 0, len(stats))
 	for _, row := range stats {
-		browserStats = append(browserStats, types.BrowserStats{
+		browserStats = append(browserStats, BrowserStats{
 			Browser:    row.Browser,
 			Percentage: int(row.Percentage),
 		})
@@ -181,7 +180,7 @@ func (s *AnalyticsService) GetBrowsers(ctx context.Context, data types.RequestPa
 	return browserStats, nil
 }
 
-func (s *AnalyticsService) GetCountries(ctx context.Context, data types.RequestPayload) ([]types.CountryStats, error) {
+func (s *AnalyticsService) GetCountries(ctx context.Context, data RequestPayload) ([]CountryStats, error) {
 	params := database.GetCountriesParams{
 		TrackingID:  data.TrackingID,
 		Timestamp:   data.StartDate,
@@ -190,12 +189,12 @@ func (s *AnalyticsService) GetCountries(ctx context.Context, data types.RequestP
 
 	stats, err := s.Queries.GetCountries(ctx, params)
 	if err != nil {
-		return []types.CountryStats{}, err
+		return []CountryStats{}, err
 	}
 
-	countryStats := make([]types.CountryStats, 0, len(stats))
+	countryStats := make([]CountryStats, 0, len(stats))
 	for _, row := range stats {
-		countryStats = append(countryStats, types.CountryStats{
+		countryStats = append(countryStats, CountryStats{
 			Country:    row.Country,
 			Percentage: int(row.Percentage),
 		})
@@ -204,7 +203,7 @@ func (s *AnalyticsService) GetCountries(ctx context.Context, data types.RequestP
 	return countryStats, nil
 }
 
-func (s *AnalyticsService) GetDevices(ctx context.Context, data types.RequestPayload) ([]types.DeviceStats, error) {
+func (s *AnalyticsService) GetDevices(ctx context.Context, data RequestPayload) ([]DeviceStats, error) {
 	params := database.GetDevicesParams{
 		TrackingID:  data.TrackingID,
 		Timestamp:   data.StartDate,
@@ -213,12 +212,12 @@ func (s *AnalyticsService) GetDevices(ctx context.Context, data types.RequestPay
 
 	stats, err := s.Queries.GetDevices(ctx, params)
 	if err != nil {
-		return []types.DeviceStats{}, err
+		return []DeviceStats{}, err
 	}
 
-	deviceStats := make([]types.DeviceStats, 0, len(stats))
+	deviceStats := make([]DeviceStats, 0, len(stats))
 	for _, row := range stats {
-		deviceStats = append(deviceStats, types.DeviceStats{
+		deviceStats = append(deviceStats, DeviceStats{
 			Device:     row.Device,
 			Percentage: int(row.Percentage),
 		})
@@ -227,7 +226,7 @@ func (s *AnalyticsService) GetDevices(ctx context.Context, data types.RequestPay
 	return deviceStats, nil
 }
 
-func (s *AnalyticsService) GetOS(ctx context.Context, data types.RequestPayload) ([]types.OSStats, error) {
+func (s *AnalyticsService) GetOS(ctx context.Context, data RequestPayload) ([]OSStats, error) {
 	params := database.GetOSParams{
 		TrackingID:  data.TrackingID,
 		Timestamp:   data.StartDate,
@@ -236,28 +235,28 @@ func (s *AnalyticsService) GetOS(ctx context.Context, data types.RequestPayload)
 
 	stats, err := s.Queries.GetOS(ctx, params)
 	if err != nil {
-		return []types.OSStats{}, err
+		return []OSStats{}, err
 	}
 
-	OSStats := make([]types.OSStats, 0, len(stats))
+	osstats := make([]OSStats, 0, len(stats))
 	for _, row := range stats {
-		OSStats = append(OSStats, types.OSStats{
+		osstats = append(osstats, OSStats{
 			OS:         row.OperatingSystem,
 			Percentage: int(row.Percentage),
 		})
 	}
 
-	return OSStats, nil
+	return osstats, nil
 }
 
-func (s *AnalyticsService) ResolveGeoLocation(remoteAddr string) (*types.GeoLocation, error) {
+func (s *AnalyticsService) ResolveGeoLocation(remoteAddr string) (*GeoLocation, error) {
 	ip := net.ParseIP(remoteAddr)
 	record, err := s.GeoDB.City(ip)
 	if err != nil {
-		return &types.GeoLocation{}, err
+		return &GeoLocation{}, err
 	}
 
-	geoLocation := &types.GeoLocation{
+	geoLocation := &GeoLocation{
 		Country:   record.Country.Names["en"],
 		City:      record.City.Names["en"],
 		Longitude: record.Location.Longitude,
@@ -267,9 +266,9 @@ func (s *AnalyticsService) ResolveGeoLocation(remoteAddr string) (*types.GeoLoca
 	return geoLocation, nil
 }
 
-func (s *AnalyticsService) ParseUserAgent(ua string) *types.UserAgentDetails {
+func (s *AnalyticsService) ParseUserAgent(ua string) *UserAgentDetails {
 	parsedUA := useragent.Parse(ua)
-	return &types.UserAgentDetails{
+	return &UserAgentDetails{
 		Browser:         parsedUA.Name,
 		Device:          parsedUA.Device,
 		OperatingSystem: parsedUA.OS,

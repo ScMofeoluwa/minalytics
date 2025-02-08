@@ -67,7 +67,6 @@ func main() {
 
 	r := gin.Default()
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-	r.GET("/", analyticsHandler.Home)
 	r.GET("/analytics/track", WrapHandler(analyticsHandler.TrackEvent))
 
 	auth := r.Group("auth")
