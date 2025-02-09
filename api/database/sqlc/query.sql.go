@@ -7,7 +7,7 @@ package database
 
 import (
 	"context"
-	"time"
+	"database/sql"
 
 	"github.com/google/uuid"
 )
@@ -122,15 +122,19 @@ func (q *Queries) GetApps(ctx context.Context, userID uuid.UUID) ([]App, error) 
 const getBrowsers = `-- name: GetBrowsers :many
 SELECT browser, ROUND((COUNT(DISTINCT visitor_id) * 100.0) / SUM(COUNT(DISTINCT visitor_id)) OVER (), 0) as percentage
 FROM apps a JOIN events e ON a.tracking_id = e.tracking_id
-WHERE a.tracking_id = $1 AND timestamp BETWEEN $2 AND $3 
+WHERE a.tracking_id = $1 AND
+(
+  ($2::timestamptz IS NULL AND $3::timestamptz IS NULL AND timestamp >= NOW() - INTERVAL '24 hours') OR
+  (timestamp BETWEEN $2 AND $3)
+)
 GROUP BY browser
 ORDER BY percentage DESC
 `
 
 type GetBrowsersParams struct {
-	TrackingID  uuid.UUID `json:"tracking_id"`
-	Timestamp   time.Time `json:"timestamp"`
-	Timestamp_2 time.Time `json:"timestamp_2"`
+	TrackingID uuid.UUID    `json:"tracking_id"`
+	Column2    sql.NullTime `json:"column_2"`
+	Column3    sql.NullTime `json:"column_3"`
 }
 
 type GetBrowsersRow struct {
@@ -139,7 +143,7 @@ type GetBrowsersRow struct {
 }
 
 func (q *Queries) GetBrowsers(ctx context.Context, arg GetBrowsersParams) ([]GetBrowsersRow, error) {
-	rows, err := q.db.Query(ctx, getBrowsers, arg.TrackingID, arg.Timestamp, arg.Timestamp_2)
+	rows, err := q.db.Query(ctx, getBrowsers, arg.TrackingID, arg.Column2, arg.Column3)
 	if err != nil {
 		return nil, err
 	}
@@ -161,15 +165,19 @@ func (q *Queries) GetBrowsers(ctx context.Context, arg GetBrowsersParams) ([]Get
 const getCountries = `-- name: GetCountries :many
 SELECT country, ROUND((COUNT(DISTINCT visitor_id) * 100.0) / SUM(COUNT(DISTINCT visitor_id)) OVER (), 0) as percentage
 FROM apps a JOIN events e ON a.tracking_id = e.tracking_id
-WHERE a.tracking_id = $1 AND timestamp BETWEEN $2 AND $3 
+WHERE a.tracking_id = $1 AND
+(
+  ($2::timestamptz IS NULL AND $3::timestamptz IS NULL AND timestamp >= NOW() - INTERVAL '24 hours') OR
+  (timestamp BETWEEN $2 AND $3)
+)
 GROUP BY country
 ORDER BY percentage DESC
 `
 
 type GetCountriesParams struct {
-	TrackingID  uuid.UUID `json:"tracking_id"`
-	Timestamp   time.Time `json:"timestamp"`
-	Timestamp_2 time.Time `json:"timestamp_2"`
+	TrackingID uuid.UUID    `json:"tracking_id"`
+	Column2    sql.NullTime `json:"column_2"`
+	Column3    sql.NullTime `json:"column_3"`
 }
 
 type GetCountriesRow struct {
@@ -178,7 +186,7 @@ type GetCountriesRow struct {
 }
 
 func (q *Queries) GetCountries(ctx context.Context, arg GetCountriesParams) ([]GetCountriesRow, error) {
-	rows, err := q.db.Query(ctx, getCountries, arg.TrackingID, arg.Timestamp, arg.Timestamp_2)
+	rows, err := q.db.Query(ctx, getCountries, arg.TrackingID, arg.Column2, arg.Column3)
 	if err != nil {
 		return nil, err
 	}
@@ -200,15 +208,19 @@ func (q *Queries) GetCountries(ctx context.Context, arg GetCountriesParams) ([]G
 const getDevices = `-- name: GetDevices :many
 SELECT device, ROUND((COUNT(DISTINCT visitor_id) * 100.0) / SUM(COUNT(DISTINCT visitor_id)) OVER (), 0) as percentage
 FROM apps a JOIN events e ON a.tracking_id = e.tracking_id
-WHERE a.tracking_id = $1 AND timestamp BETWEEN $2 AND $3 
+WHERE a.tracking_id = $1 AND
+(
+  ($2::timestamptz IS NULL AND $3::timestamptz IS NULL AND timestamp >= NOW() - INTERVAL '24 hours') OR
+  (timestamp BETWEEN $2 AND $3)
+)
 GROUP BY device
 ORDER BY percentage DESC
 `
 
 type GetDevicesParams struct {
-	TrackingID  uuid.UUID `json:"tracking_id"`
-	Timestamp   time.Time `json:"timestamp"`
-	Timestamp_2 time.Time `json:"timestamp_2"`
+	TrackingID uuid.UUID    `json:"tracking_id"`
+	Column2    sql.NullTime `json:"column_2"`
+	Column3    sql.NullTime `json:"column_3"`
 }
 
 type GetDevicesRow struct {
@@ -217,7 +229,7 @@ type GetDevicesRow struct {
 }
 
 func (q *Queries) GetDevices(ctx context.Context, arg GetDevicesParams) ([]GetDevicesRow, error) {
-	rows, err := q.db.Query(ctx, getDevices, arg.TrackingID, arg.Timestamp, arg.Timestamp_2)
+	rows, err := q.db.Query(ctx, getDevices, arg.TrackingID, arg.Column2, arg.Column3)
 	if err != nil {
 		return nil, err
 	}
@@ -239,15 +251,19 @@ func (q *Queries) GetDevices(ctx context.Context, arg GetDevicesParams) ([]GetDe
 const getOS = `-- name: GetOS :many
 SELECT operating_system, ROUND((COUNT(DISTINCT visitor_id) * 100.0) / SUM(COUNT(DISTINCT visitor_id)) OVER (), 0) as percentage
 FROM apps a JOIN events e ON a.tracking_id = e.tracking_id
-WHERE a.tracking_id = $1 AND timestamp BETWEEN $2 AND $3 
+WHERE a.tracking_id = $1 AND
+(
+  ($2::timestamptz IS NULL AND $3::timestamptz IS NULL AND timestamp >= NOW() - INTERVAL '24 hours') OR
+  (timestamp BETWEEN $2 AND $3)
+)
 GROUP BY operating_system
 ORDER BY percentage DESC
 `
 
 type GetOSParams struct {
-	TrackingID  uuid.UUID `json:"tracking_id"`
-	Timestamp   time.Time `json:"timestamp"`
-	Timestamp_2 time.Time `json:"timestamp_2"`
+	TrackingID uuid.UUID    `json:"tracking_id"`
+	Column2    sql.NullTime `json:"column_2"`
+	Column3    sql.NullTime `json:"column_3"`
 }
 
 type GetOSRow struct {
@@ -256,7 +272,7 @@ type GetOSRow struct {
 }
 
 func (q *Queries) GetOS(ctx context.Context, arg GetOSParams) ([]GetOSRow, error) {
-	rows, err := q.db.Query(ctx, getOS, arg.TrackingID, arg.Timestamp, arg.Timestamp_2)
+	rows, err := q.db.Query(ctx, getOS, arg.TrackingID, arg.Column2, arg.Column3)
 	if err != nil {
 		return nil, err
 	}
@@ -294,15 +310,19 @@ func (q *Queries) GetOrCreateUser(ctx context.Context, email string) (uuid.UUID,
 const getPages = `-- name: GetPages :many
 SELECT url, COUNT(DISTINCT visitor_id) AS visitor_count
 FROM apps a JOIN events e ON a.tracking_id = e.tracking_id
-WHERE url IS NOT NULL AND e.event_type = 'pageview' AND a.tracking_id = $1 AND timestamp BETWEEN $2 AND $3 
+WHERE url IS NOT NULL AND e.event_type = 'pageview' AND a.tracking_id = $1 AND 
+(
+  ($2::timestamptz IS NULL AND $3::timestamptz IS NULL AND timestamp >= NOW() - INTERVAL '24 hours') OR
+  (timestamp BETWEEN $2 AND $3)
+)
 GROUP BY url
 ORDER BY visitor_count DESC
 `
 
 type GetPagesParams struct {
-	TrackingID  uuid.UUID `json:"tracking_id"`
-	Timestamp   time.Time `json:"timestamp"`
-	Timestamp_2 time.Time `json:"timestamp_2"`
+	TrackingID uuid.UUID    `json:"tracking_id"`
+	Column2    sql.NullTime `json:"column_2"`
+	Column3    sql.NullTime `json:"column_3"`
 }
 
 type GetPagesRow struct {
@@ -311,7 +331,7 @@ type GetPagesRow struct {
 }
 
 func (q *Queries) GetPages(ctx context.Context, arg GetPagesParams) ([]GetPagesRow, error) {
-	rows, err := q.db.Query(ctx, getPages, arg.TrackingID, arg.Timestamp, arg.Timestamp_2)
+	rows, err := q.db.Query(ctx, getPages, arg.TrackingID, arg.Column2, arg.Column3)
 	if err != nil {
 		return nil, err
 	}
@@ -333,15 +353,19 @@ func (q *Queries) GetPages(ctx context.Context, arg GetPagesParams) ([]GetPagesR
 const getReferrals = `-- name: GetReferrals :many
 SELECT referrer, COUNT(DISTINCT visitor_id) AS visitor_count
 FROM apps a JOIN events e ON a.tracking_id = e.tracking_id
-WHERE referrer IS NOT NULL AND a.tracking_id = $1 AND timestamp BETWEEN $2 AND $3 
+WHERE referrer IS NOT NULL AND a.tracking_id = $1 AND
+(
+  ($2::timestamptz IS NULL AND $3::timestamptz IS NULL AND timestamp >= NOW() - INTERVAL '24 hours') OR
+  (timestamp BETWEEN $2 AND $3)
+)
 GROUP BY referrer
 ORDER BY visitor_count DESC
 `
 
 type GetReferralsParams struct {
-	TrackingID  uuid.UUID `json:"tracking_id"`
-	Timestamp   time.Time `json:"timestamp"`
-	Timestamp_2 time.Time `json:"timestamp_2"`
+	TrackingID uuid.UUID    `json:"tracking_id"`
+	Column2    sql.NullTime `json:"column_2"`
+	Column3    sql.NullTime `json:"column_3"`
 }
 
 type GetReferralsRow struct {
@@ -350,7 +374,7 @@ type GetReferralsRow struct {
 }
 
 func (q *Queries) GetReferrals(ctx context.Context, arg GetReferralsParams) ([]GetReferralsRow, error) {
-	rows, err := q.db.Query(ctx, getReferrals, arg.TrackingID, arg.Timestamp, arg.Timestamp_2)
+	rows, err := q.db.Query(ctx, getReferrals, arg.TrackingID, arg.Column2, arg.Column3)
 	if err != nil {
 		return nil, err
 	}
@@ -359,6 +383,53 @@ func (q *Queries) GetReferrals(ctx context.Context, arg GetReferralsParams) ([]G
 	for rows.Next() {
 		var i GetReferralsRow
 		if err := rows.Scan(&i.Referrer, &i.VisitorCount); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getVisitors = `-- name: GetVisitors :many
+SELECT time_bucket($4, timestamp::timestamptz)::timestamptz AS time, COUNT(DISTINCT visitor_id) AS visitors
+FROM events WHERE tracking_id = $1 AND
+(
+  ($2::timestamptz IS NULL AND $3::timestamptz IS NULL AND timestamp >= NOW() - INTERVAL '24 hours') OR
+  (timestamp BETWEEN $2 AND $3)
+)
+GROUP BY time
+`
+
+type GetVisitorsParams struct {
+	TrackingID uuid.UUID    `json:"tracking_id"`
+	Column2    sql.NullTime `json:"column_2"`
+	Column3    sql.NullTime `json:"column_3"`
+	TimeBucket interface{}  `json:"time_bucket"`
+}
+
+type GetVisitorsRow struct {
+	Time     sql.NullTime `json:"time"`
+	Visitors int64        `json:"visitors"`
+}
+
+func (q *Queries) GetVisitors(ctx context.Context, arg GetVisitorsParams) ([]GetVisitorsRow, error) {
+	rows, err := q.db.Query(ctx, getVisitors,
+		arg.TrackingID,
+		arg.Column2,
+		arg.Column3,
+		arg.TimeBucket,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetVisitorsRow{}
+	for rows.Next() {
+		var i GetVisitorsRow
+		if err := rows.Scan(&i.Time, &i.Visitors); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

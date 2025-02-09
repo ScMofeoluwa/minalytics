@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -157,8 +158,8 @@ func (h *AnalyticsHandler) GetApps(ctx *gin.Context) APIResponse {
 // @Accept  json
 // @Produce  json
 // @Param trackingID query string true "app tracking ID"
-// @Param startDate query string true "start date"
-// @Param endDate query string true "end date"
+// @Param startDate query string false "start date"
+// @Param endDate query string false "end date"
 // @Security BearerAuth
 // @Success 200 {object} ReferralResponse "stats fetched successfully"
 // @Failure 400 {object} APIStatus "invalid request paramaters"
@@ -196,8 +197,8 @@ func (h *AnalyticsHandler) GetReferrals(ctx *gin.Context) APIResponse {
 // @Accept  json
 // @Produce  json
 // @Param trackingID query string true "app tracking ID"
-// @Param startDate query string true "start date"
-// @Param endDate query string true "end date"
+// @Param startDate query string false "start date"
+// @Param endDate query string false "end date"
 // @Security BearerAuth
 // @Success 200 {object} PageResponse "stats fetched successfully"
 // @Failure 400 {object} APIStatus "invalid request paramaters"
@@ -235,8 +236,8 @@ func (h *AnalyticsHandler) GetPages(ctx *gin.Context) APIResponse {
 // @Accept  json
 // @Produce  json
 // @Param trackingID query string true "app tracking ID"
-// @Param startDate query string true "start date"
-// @Param endDate query string true "end date"
+// @Param startDate query string false "start date"
+// @Param endDate query string false "end date"
 // @Security BearerAuth
 // @Success 200 {object} BrowserResponse "stats fetched successfully"
 // @Failure 400 {object} APIStatus "invalid request paramaters"
@@ -274,8 +275,8 @@ func (h *AnalyticsHandler) GetBrowsers(ctx *gin.Context) APIResponse {
 // @Accept  json
 // @Produce  json
 // @Param trackingID query string true "app tracking ID"
-// @Param startDate query string true "start date"
-// @Param endDate query string true "end date"
+// @Param startDate query string false "start date"
+// @Param endDate query string false "end date"
 // @Security BearerAuth
 // @Success 200 {object} CountryResponse "stats fetched successfully"
 // @Failure 400 {object} APIStatus "invalid request paramaters"
@@ -313,8 +314,8 @@ func (h *AnalyticsHandler) GetCountries(ctx *gin.Context) APIResponse {
 // @Accept  json
 // @Produce  json
 // @Param trackingID query string true "app tracking ID"
-// @Param startDate query string true "start date"
-// @Param endDate query string true "end date"
+// @Param startDate query string false "start date"
+// @Param endDate query string false "end date"
 // @Security BearerAuth
 // @Success 200 {object} DeviceResponse "stats fetched successfully"
 // @Failure 400 {object} APIStatus "invalid request paramaters"
@@ -352,8 +353,8 @@ func (h *AnalyticsHandler) GetDevices(ctx *gin.Context) APIResponse {
 // @Accept  json
 // @Produce  json
 // @Param trackingID query string true "app tracking ID"
-// @Param startDate query string true "start date"
-// @Param endDate query string true "end date"
+// @Param startDate query string false "start date"
+// @Param endDate query string false "end date"
 // @Security BearerAuth
 // @Success 200 {object} OSResponse "stats fetched successfully"
 // @Failure 400 {object} APIStatus "invalid request paramaters"
@@ -385,7 +386,58 @@ func (h *AnalyticsHandler) GetOS(ctx *gin.Context) APIResponse {
 	return NewSuccessResponse(stats, http.StatusOK, "stats fetched successfully")
 }
 
+// @Summary Get Visitors
+// @Description Retrieves visitors
+// @Tags Analytics
+// @Accept  json
+// @Produce  json
+// @Param trackingID query string true "app tracking ID"
+// @Param startDate query string false "start date"
+// @Param endDate query string false "end date"
+// @Security BearerAuth
+// @Success 200 {object} VisitorResponse "stats fetched successfully"
+// @Failure 400 {object} APIStatus "invalid request paramaters"
+// @Failure 500 {object} APIStatus "failed to fetch visitors"
+// @Router /analytics/visitors [get]
+func (h *AnalyticsHandler) GetVisitors(ctx *gin.Context) APIResponse {
+	trackingID_, exists := ctx.Get("trackingID")
+	if !exists {
+		h.logger.Warn("trackingID not found in context")
+		return NewErrorResponse(http.StatusUnauthorized, "trackingID not found in context")
+	}
+	trackingID := trackingID_.(uuid.UUID)
+
+	startDate := ctx.Query("startDate")
+	endDate := ctx.Query("endDate")
+
+	payload, err := createRequestPayload(trackingID, startDate, endDate)
+	if err != nil {
+		h.logger.Error("invalid request parameters", zap.Error(err))
+		return NewErrorResponse(http.StatusBadRequest, err.Error())
+	}
+
+	stats, err := h.service.GetVisitor(ctx, payload)
+	if err != nil {
+		h.logger.Error("failed to fetch visitors", zap.Error(err))
+		return NewErrorResponse(http.StatusInternalServerError, "failed to fetch visitors")
+	}
+
+	return NewSuccessResponse(stats, http.StatusOK, "stats fetched successfully")
+}
+
 func createRequestPayload(trackingID uuid.UUID, startDateStr, endDateStr string) (RequestPayload, error) {
+	if (startDateStr == "" && endDateStr != "") || (startDateStr != "" && endDateStr == "") {
+		return RequestPayload{}, fmt.Errorf("either specify both startDate and endDate, or specify neither")
+	}
+
+	if startDateStr == "" && endDateStr == "" {
+		return RequestPayload{
+			TrackingID: trackingID,
+			BucketSize: "1 hour",
+			StartDate:  sql.NullTime{},
+			EndDate:    sql.NullTime{},
+		}, nil
+	}
 	parsedTimes, err := parseDates(startDateStr, endDateStr)
 	if err != nil {
 		return RequestPayload{}, err
@@ -403,8 +455,9 @@ func createRequestPayload(trackingID uuid.UUID, startDateStr, endDateStr string)
 
 	return RequestPayload{
 		TrackingID: trackingID,
-		StartDate:  startDate,
-		EndDate:    endDate.Add(24 * time.Hour),
+		BucketSize: "1 day",
+		StartDate:  sql.NullTime{Time: startDate, Valid: true},
+		EndDate:    sql.NullTime{Time: endDate.Add(24 * time.Hour), Valid: true},
 	}, nil
 }
 

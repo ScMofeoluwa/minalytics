@@ -79,7 +79,7 @@ func (s *AnalyticsService) CreateApp(ctx context.Context, userID uuid.UUID, name
 	app := &App{
 		Name:       app_.Name,
 		TrackingID: app_.TrackingID,
-		CreatedAt:  app_.CreatedAt,
+		CreatedAt:  app_.CreatedAt.Time,
 	}
 	return app, nil
 }
@@ -94,7 +94,7 @@ func (s *AnalyticsService) GetApps(ctx context.Context, userID uuid.UUID) ([]App
 	for _, row := range apps_ {
 		apps = append(apps, App{
 			Name:       row.Name,
-			CreatedAt:  row.CreatedAt,
+			CreatedAt:  row.CreatedAt.Time,
 			TrackingID: row.TrackingID,
 		})
 	}
@@ -103,9 +103,9 @@ func (s *AnalyticsService) GetApps(ctx context.Context, userID uuid.UUID) ([]App
 
 func (s *AnalyticsService) GetReferrals(ctx context.Context, data RequestPayload) ([]ReferralStats, error) {
 	params := database.GetReferralsParams{
-		TrackingID:  data.TrackingID,
-		Timestamp:   data.StartDate,
-		Timestamp_2: data.EndDate,
+		TrackingID: data.TrackingID,
+		Column2:    data.StartDate,
+		Column3:    data.EndDate,
 	}
 
 	stats, err := s.Queries.GetReferrals(ctx, params)
@@ -126,9 +126,9 @@ func (s *AnalyticsService) GetReferrals(ctx context.Context, data RequestPayload
 
 func (s *AnalyticsService) GetPages(ctx context.Context, data RequestPayload) ([]PageStats, error) {
 	params := database.GetPagesParams{
-		TrackingID:  data.TrackingID,
-		Timestamp:   data.StartDate,
-		Timestamp_2: data.EndDate,
+		TrackingID: data.TrackingID,
+		Column2:    data.StartDate,
+		Column3:    data.EndDate,
 	}
 
 	stats, err := s.Queries.GetPages(ctx, params)
@@ -159,9 +159,9 @@ func (s *AnalyticsService) GetPages(ctx context.Context, data RequestPayload) ([
 
 func (s *AnalyticsService) GetBrowsers(ctx context.Context, data RequestPayload) ([]BrowserStats, error) {
 	params := database.GetBrowsersParams{
-		TrackingID:  data.TrackingID,
-		Timestamp:   data.StartDate,
-		Timestamp_2: data.EndDate,
+		TrackingID: data.TrackingID,
+		Column2:    data.StartDate,
+		Column3:    data.EndDate,
 	}
 
 	stats, err := s.Queries.GetBrowsers(ctx, params)
@@ -182,9 +182,9 @@ func (s *AnalyticsService) GetBrowsers(ctx context.Context, data RequestPayload)
 
 func (s *AnalyticsService) GetCountries(ctx context.Context, data RequestPayload) ([]CountryStats, error) {
 	params := database.GetCountriesParams{
-		TrackingID:  data.TrackingID,
-		Timestamp:   data.StartDate,
-		Timestamp_2: data.EndDate,
+		TrackingID: data.TrackingID,
+		Column2:    data.StartDate,
+		Column3:    data.EndDate,
 	}
 
 	stats, err := s.Queries.GetCountries(ctx, params)
@@ -205,9 +205,9 @@ func (s *AnalyticsService) GetCountries(ctx context.Context, data RequestPayload
 
 func (s *AnalyticsService) GetDevices(ctx context.Context, data RequestPayload) ([]DeviceStats, error) {
 	params := database.GetDevicesParams{
-		TrackingID:  data.TrackingID,
-		Timestamp:   data.StartDate,
-		Timestamp_2: data.EndDate,
+		TrackingID: data.TrackingID,
+		Column2:    data.StartDate,
+		Column3:    data.EndDate,
 	}
 
 	stats, err := s.Queries.GetDevices(ctx, params)
@@ -228,9 +228,9 @@ func (s *AnalyticsService) GetDevices(ctx context.Context, data RequestPayload) 
 
 func (s *AnalyticsService) GetOS(ctx context.Context, data RequestPayload) ([]OSStats, error) {
 	params := database.GetOSParams{
-		TrackingID:  data.TrackingID,
-		Timestamp:   data.StartDate,
-		Timestamp_2: data.EndDate,
+		TrackingID: data.TrackingID,
+		Column2:    data.StartDate,
+		Column3:    data.EndDate,
 	}
 
 	stats, err := s.Queries.GetOS(ctx, params)
@@ -247,6 +247,30 @@ func (s *AnalyticsService) GetOS(ctx context.Context, data RequestPayload) ([]OS
 	}
 
 	return osstats, nil
+}
+
+func (s *AnalyticsService) GetVisitor(ctx context.Context, data RequestPayload) ([]VisitorStats, error) {
+	params := database.GetVisitorsParams{
+		TrackingID: data.TrackingID,
+		Column2:    data.StartDate,
+		Column3:    data.EndDate,
+		TimeBucket: data.BucketSize,
+	}
+
+	stats, err := s.Queries.GetVisitors(ctx, params)
+	if err != nil {
+		return []VisitorStats{}, err
+	}
+
+	visitorStats := make([]VisitorStats, 0, len(stats))
+	for _, row := range stats {
+		visitorStats = append(visitorStats, VisitorStats{
+			Time:     row.Time.Time.String(),
+			Visitors: int(row.Visitors),
+		})
+	}
+
+	return visitorStats, nil
 }
 
 func (s *AnalyticsService) ResolveGeoLocation(remoteAddr string) (*GeoLocation, error) {

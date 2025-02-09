@@ -45,15 +45,13 @@ const docTemplate = `{
                         "type": "string",
                         "description": "start date",
                         "name": "startDate",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "string",
                         "description": "end date",
                         "name": "endDate",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -108,15 +106,13 @@ const docTemplate = `{
                         "type": "string",
                         "description": "start date",
                         "name": "startDate",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "string",
                         "description": "end date",
                         "name": "endDate",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -171,15 +167,13 @@ const docTemplate = `{
                         "type": "string",
                         "description": "start date",
                         "name": "startDate",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "string",
                         "description": "end date",
                         "name": "endDate",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -234,15 +228,13 @@ const docTemplate = `{
                         "type": "string",
                         "description": "start date",
                         "name": "startDate",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "string",
                         "description": "end date",
                         "name": "endDate",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -297,15 +289,13 @@ const docTemplate = `{
                         "type": "string",
                         "description": "start date",
                         "name": "startDate",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "string",
                         "description": "end date",
                         "name": "endDate",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -360,15 +350,13 @@ const docTemplate = `{
                         "type": "string",
                         "description": "start date",
                         "name": "startDate",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "string",
                         "description": "end date",
                         "name": "endDate",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -430,6 +418,67 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Failed to resolve geolocation or track event",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    }
+                }
+            }
+        },
+        "/analytics/visitors": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves visitors",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get Visitors",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "app tracking ID",
+                        "name": "trackingID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "start date",
+                        "name": "startDate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "end date",
+                        "name": "endDate",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "stats fetched successfully",
+                        "schema": {
+                            "$ref": "#/definitions/main.VisitorResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid request paramaters",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    },
+                    "500": {
+                        "description": "failed to fetch visitors",
                         "schema": {
                             "$ref": "#/definitions/main.APIStatus"
                         }
@@ -546,7 +595,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "created_at": {
-                    "type": "string"
+                    "$ref": "#/definitions/sql.NullTime"
                 },
                 "name": {
                     "type": "string"
@@ -704,6 +753,40 @@ const docTemplate = `{
                 },
                 "visitor_count": {
                     "type": "integer"
+                }
+            }
+        },
+        "main.VisitorResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/main.VisitorStats"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.VisitorStats": {
+            "type": "object",
+            "properties": {
+                "bucket": {
+                    "type": "string"
+                },
+                "visitors": {
+                    "type": "integer"
+                }
+            }
+        },
+        "sql.NullTime": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if Time is not NULL",
+                    "type": "boolean"
                 }
             }
         }

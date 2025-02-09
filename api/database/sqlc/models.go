@@ -5,17 +5,17 @@
 package database
 
 import (
-	"time"
+	"database/sql"
 
 	"github.com/google/uuid"
 )
 
 type App struct {
-	ID         uuid.UUID `json:"id"`
-	TrackingID uuid.UUID `json:"tracking_id"`
-	UserID     uuid.UUID `json:"user_id"`
-	Name       string    `json:"name"`
-	CreatedAt  time.Time `json:"created_at"`
+	ID         uuid.UUID    `json:"id"`
+	TrackingID uuid.UUID    `json:"tracking_id"`
+	UserID     uuid.UUID    `json:"user_id"`
+	Name       string       `json:"name"`
+	CreatedAt  sql.NullTime `json:"created_at"`
 }
 
 type Event struct {
@@ -30,7 +30,7 @@ type Event struct {
 	Device          string       `json:"device"`
 	OperatingSystem string       `json:"operating_system"`
 	Details         EventDetails `json:"details"`
-	Timestamp       time.Time    `json:"timestamp"`
+	Timestamp       sql.NullTime `json:"timestamp"`
 }
 
 type User struct {

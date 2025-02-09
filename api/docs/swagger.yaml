@@ -7,7 +7,7 @@ definitions:
   main.App:
     properties:
       created_at:
-        type: string
+        $ref: '#/definitions/sql.NullTime'
       name:
         type: string
       trackingID:
@@ -109,6 +109,28 @@ definitions:
       visitor_count:
         type: integer
     type: object
+  main.VisitorResponse:
+    properties:
+      data:
+        $ref: '#/definitions/main.VisitorStats'
+      message:
+        type: string
+    type: object
+  main.VisitorStats:
+    properties:
+      bucket:
+        type: string
+      visitors:
+        type: integer
+    type: object
+  sql.NullTime:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
 info:
   contact: {}
   description: Analytics API for tracking and managing app data.
@@ -129,12 +151,10 @@ paths:
       - description: start date
         in: query
         name: startDate
-        required: true
         type: string
       - description: end date
         in: query
         name: endDate
-        required: true
         type: string
       produces:
       - application/json
@@ -170,12 +190,10 @@ paths:
       - description: start date
         in: query
         name: startDate
-        required: true
         type: string
       - description: end date
         in: query
         name: endDate
-        required: true
         type: string
       produces:
       - application/json
@@ -211,12 +229,10 @@ paths:
       - description: start date
         in: query
         name: startDate
-        required: true
         type: string
       - description: end date
         in: query
         name: endDate
-        required: true
         type: string
       produces:
       - application/json
@@ -252,12 +268,10 @@ paths:
       - description: start date
         in: query
         name: startDate
-        required: true
         type: string
       - description: end date
         in: query
         name: endDate
-        required: true
         type: string
       produces:
       - application/json
@@ -293,12 +307,10 @@ paths:
       - description: start date
         in: query
         name: startDate
-        required: true
         type: string
       - description: end date
         in: query
         name: endDate
-        required: true
         type: string
       produces:
       - application/json
@@ -334,12 +346,10 @@ paths:
       - description: start date
         in: query
         name: startDate
-        required: true
         type: string
       - description: end date
         in: query
         name: endDate
-        required: true
         type: string
       produces:
       - application/json
@@ -388,6 +398,45 @@ paths:
           schema:
             $ref: '#/definitions/main.APIStatus'
       summary: Track an event
+      tags:
+      - Analytics
+  /analytics/visitors:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves visitors
+      parameters:
+      - description: app tracking ID
+        in: query
+        name: trackingID
+        required: true
+        type: string
+      - description: start date
+        in: query
+        name: startDate
+        type: string
+      - description: end date
+        in: query
+        name: endDate
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: stats fetched successfully
+          schema:
+            $ref: '#/definitions/main.VisitorResponse'
+        "400":
+          description: invalid request paramaters
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+        "500":
+          description: failed to fetch visitors
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+      security:
+      - BearerAuth: []
+      summary: Get Visitors
       tags:
       - Analytics
   /apps:

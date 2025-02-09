@@ -92,6 +92,7 @@ func main() {
 		analytics.GET("countries", WrapHandler(analyticsHandler.GetCountries))
 		analytics.GET("devices", WrapHandler(analyticsHandler.GetDevices))
 		analytics.GET("os", WrapHandler(analyticsHandler.GetOS))
+		analytics.GET("visitors", WrapHandler(analyticsHandler.GetVisitors))
 	}
 
 	port := viper.GetString("PORT")

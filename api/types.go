@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -70,11 +71,16 @@ type OSStats struct {
 	Percentage int    `json:"percentage"`
 }
 
+type VisitorStats struct {
+	Time     string `json:"time"`
+	Visitors int    `json:"visitors"`
+}
+
 type RequestPayload struct {
-	UserID     uuid.UUID
 	TrackingID uuid.UUID
-	StartDate  time.Time
-	EndDate    time.Time
+	BucketSize string
+	StartDate  sql.NullTime
+	EndDate    sql.NullTime
 }
 
 type APIResponse struct {
@@ -120,6 +126,11 @@ type DeviceResponse struct {
 
 type OSResponse struct {
 	Data OSStats
+	APIStatus
+}
+
+type VisitorResponse struct {
+	Data VisitorStats
 	APIStatus
 }
 

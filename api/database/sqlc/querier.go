@@ -22,6 +22,7 @@ type Querier interface {
 	GetOrCreateUser(ctx context.Context, email string) (uuid.UUID, error)
 	GetPages(ctx context.Context, arg GetPagesParams) ([]GetPagesRow, error)
 	GetReferrals(ctx context.Context, arg GetReferralsParams) ([]GetReferralsRow, error)
+	GetVisitors(ctx context.Context, arg GetVisitorsParams) ([]GetVisitorsRow, error)
 }
 
 var _ Querier = (*Queries)(nil)
