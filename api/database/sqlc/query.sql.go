@@ -307,6 +307,53 @@ func (q *Queries) GetOrCreateUser(ctx context.Context, email string) (uuid.UUID,
 	return id, err
 }
 
+const getPageViews = `-- name: GetPageViews :many
+SELECT time_bucket($4, timestamp::timestamptz)::timestamptz AS time, COUNT(url) AS views
+FROM events WHERE tracking_id = $1 AND
+(
+  ($2::timestamptz IS NULL AND $3::timestamptz IS NULL AND timestamp >= NOW() - INTERVAL '24 hours') OR
+  (timestamp BETWEEN $2 AND $3)
+)
+GROUP BY time
+`
+
+type GetPageViewsParams struct {
+	TrackingID uuid.UUID    `json:"tracking_id"`
+	Column2    sql.NullTime `json:"column_2"`
+	Column3    sql.NullTime `json:"column_3"`
+	TimeBucket interface{}  `json:"time_bucket"`
+}
+
+type GetPageViewsRow struct {
+	Time  sql.NullTime `json:"time"`
+	Views int64        `json:"views"`
+}
+
+func (q *Queries) GetPageViews(ctx context.Context, arg GetPageViewsParams) ([]GetPageViewsRow, error) {
+	rows, err := q.db.Query(ctx, getPageViews,
+		arg.TrackingID,
+		arg.Column2,
+		arg.Column3,
+		arg.TimeBucket,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetPageViewsRow{}
+	for rows.Next() {
+		var i GetPageViewsRow
+		if err := rows.Scan(&i.Time, &i.Views); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getPages = `-- name: GetPages :many
 SELECT url, COUNT(DISTINCT visitor_id) AS visitor_count
 FROM apps a JOIN events e ON a.tracking_id = e.tracking_id

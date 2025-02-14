@@ -20,6 +20,7 @@ type Querier interface {
 	GetDevices(ctx context.Context, arg GetDevicesParams) ([]GetDevicesRow, error)
 	GetOS(ctx context.Context, arg GetOSParams) ([]GetOSRow, error)
 	GetOrCreateUser(ctx context.Context, email string) (uuid.UUID, error)
+	GetPageViews(ctx context.Context, arg GetPageViewsParams) ([]GetPageViewsRow, error)
 	GetPages(ctx context.Context, arg GetPagesParams) ([]GetPagesRow, error)
 	GetReferrals(ctx context.Context, arg GetReferralsParams) ([]GetReferralsRow, error)
 	GetVisitors(ctx context.Context, arg GetVisitorsParams) ([]GetVisitorsRow, error)

@@ -7,7 +7,7 @@ definitions:
   main.App:
     properties:
       created_at:
-        $ref: '#/definitions/sql.NullTime'
+        type: string
       name:
         type: string
       trackingID:
@@ -95,6 +95,20 @@ definitions:
       visitor_count:
         type: integer
     type: object
+  main.PageViewResponse:
+    properties:
+      data:
+        $ref: '#/definitions/main.PageViewStats'
+      message:
+        type: string
+    type: object
+  main.PageViewStats:
+    properties:
+      time:
+        type: string
+      views:
+        type: integer
+    type: object
   main.ReferralResponse:
     properties:
       data:
@@ -118,18 +132,10 @@ definitions:
     type: object
   main.VisitorStats:
     properties:
-      bucket:
+      time:
         type: string
       visitors:
         type: integer
-    type: object
-  sql.NullTime:
-    properties:
-      time:
-        type: string
-      valid:
-        description: Valid is true if Time is not NULL
-        type: boolean
     type: object
 info:
   contact: {}
@@ -330,6 +336,45 @@ paths:
       security:
       - BearerAuth: []
       summary: Get Pages
+      tags:
+      - Analytics
+  /analytics/pageviews:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves page views
+      parameters:
+      - description: app tracking ID
+        in: query
+        name: trackingID
+        required: true
+        type: string
+      - description: start date
+        in: query
+        name: startDate
+        type: string
+      - description: end date
+        in: query
+        name: endDate
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: stats fetched successfully
+          schema:
+            $ref: '#/definitions/main.PageViewResponse'
+        "400":
+          description: invalid request paramaters
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+        "500":
+          description: failed to fetch visitors
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+      security:
+      - BearerAuth: []
+      summary: Get PageViews
       tags:
       - Analytics
   /analytics/referrals:

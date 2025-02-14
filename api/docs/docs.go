@@ -320,6 +320,67 @@ const docTemplate = `{
                 }
             }
         },
+        "/analytics/pageviews": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves page views",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get PageViews",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "app tracking ID",
+                        "name": "trackingID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "start date",
+                        "name": "startDate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "end date",
+                        "name": "endDate",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "stats fetched successfully",
+                        "schema": {
+                            "$ref": "#/definitions/main.PageViewResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid request paramaters",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    },
+                    "500": {
+                        "description": "failed to fetch visitors",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    }
+                }
+            }
+        },
         "/analytics/referrals": {
             "get": {
                 "security": [
@@ -595,7 +656,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "created_at": {
-                    "$ref": "#/definitions/sql.NullTime"
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -734,6 +795,28 @@ const docTemplate = `{
                 }
             }
         },
+        "main.PageViewResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/main.PageViewStats"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.PageViewStats": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string"
+                },
+                "views": {
+                    "type": "integer"
+                }
+            }
+        },
         "main.ReferralResponse": {
             "type": "object",
             "properties": {
@@ -770,23 +853,11 @@ const docTemplate = `{
         "main.VisitorStats": {
             "type": "object",
             "properties": {
-                "bucket": {
+                "time": {
                     "type": "string"
                 },
                 "visitors": {
                     "type": "integer"
-                }
-            }
-        },
-        "sql.NullTime": {
-            "type": "object",
-            "properties": {
-                "time": {
-                    "type": "string"
-                },
-                "valid": {
-                    "description": "Valid is true if Time is not NULL",
-                    "type": "boolean"
                 }
             }
         }

@@ -249,7 +249,7 @@ func (s *AnalyticsService) GetOS(ctx context.Context, data RequestPayload) ([]OS
 	return osstats, nil
 }
 
-func (s *AnalyticsService) GetVisitor(ctx context.Context, data RequestPayload) ([]VisitorStats, error) {
+func (s *AnalyticsService) GetVisitors(ctx context.Context, data RequestPayload) ([]VisitorStats, error) {
 	params := database.GetVisitorsParams{
 		TrackingID: data.TrackingID,
 		Column2:    data.StartDate,
@@ -271,6 +271,30 @@ func (s *AnalyticsService) GetVisitor(ctx context.Context, data RequestPayload) 
 	}
 
 	return visitorStats, nil
+}
+
+func (s *AnalyticsService) GetPageViews(ctx context.Context, data RequestPayload) ([]PageViewStats, error) {
+	params := database.GetPageViewsParams{
+		TrackingID: data.TrackingID,
+		Column2:    data.StartDate,
+		Column3:    data.EndDate,
+		TimeBucket: data.BucketSize,
+	}
+
+	stats, err := s.Queries.GetPageViews(ctx, params)
+	if err != nil {
+		return []PageViewStats{}, err
+	}
+
+	pageViewStats := make([]PageViewStats, 0, len(stats))
+	for _, row := range stats {
+		pageViewStats = append(pageViewStats, PageViewStats{
+			Time:  row.Time.Time.String(),
+			Views: int(row.Views),
+		})
+	}
+
+	return pageViewStats, nil
 }
 
 func (s *AnalyticsService) ResolveGeoLocation(remoteAddr string) (*GeoLocation, error) {

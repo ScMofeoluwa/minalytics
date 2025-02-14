@@ -416,10 +416,49 @@ func (h *AnalyticsHandler) GetVisitors(ctx *gin.Context) APIResponse {
 		return NewErrorResponse(http.StatusBadRequest, err.Error())
 	}
 
-	stats, err := h.service.GetVisitor(ctx, payload)
+	stats, err := h.service.GetVisitors(ctx, payload)
 	if err != nil {
 		h.logger.Error("failed to fetch visitors", zap.Error(err))
 		return NewErrorResponse(http.StatusInternalServerError, "failed to fetch visitors")
+	}
+
+	return NewSuccessResponse(stats, http.StatusOK, "stats fetched successfully")
+}
+
+// @Summary Get PageViews
+// @Description Retrieves page views
+// @Tags Analytics
+// @Accept  json
+// @Produce  json
+// @Param trackingID query string true "app tracking ID"
+// @Param startDate query string false "start date"
+// @Param endDate query string false "end date"
+// @Security BearerAuth
+// @Success 200 {object} PageViewResponse "stats fetched successfully"
+// @Failure 400 {object} APIStatus "invalid request paramaters"
+// @Failure 500 {object} APIStatus "failed to fetch visitors"
+// @Router /analytics/pageviews [get]
+func (h *AnalyticsHandler) GetPageViews(ctx *gin.Context) APIResponse {
+	trackingID_, exists := ctx.Get("trackingID")
+	if !exists {
+		h.logger.Warn("trackingID not found in context")
+		return NewErrorResponse(http.StatusUnauthorized, "trackingID not found in context")
+	}
+	trackingID := trackingID_.(uuid.UUID)
+
+	startDate := ctx.Query("startDate")
+	endDate := ctx.Query("endDate")
+
+	payload, err := createRequestPayload(trackingID, startDate, endDate)
+	if err != nil {
+		h.logger.Error("invalid request parameters", zap.Error(err))
+		return NewErrorResponse(http.StatusBadRequest, err.Error())
+	}
+
+	stats, err := h.service.GetPageViews(ctx, payload)
+	if err != nil {
+		h.logger.Error("failed to fetch page views", zap.Error(err))
+		return NewErrorResponse(http.StatusInternalServerError, "failed to fetch page views")
 	}
 
 	return NewSuccessResponse(stats, http.StatusOK, "stats fetched successfully")

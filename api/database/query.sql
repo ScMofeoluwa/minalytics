@@ -32,6 +32,15 @@ FROM events WHERE tracking_id = $1 AND
 )
 GROUP BY time;
 
+-- name: GetPageViews :many
+SELECT time_bucket($4, timestamp::timestamptz)::timestamptz AS time, COUNT(url) AS views
+FROM events WHERE tracking_id = $1 AND
+(
+  ($2::timestamptz IS NULL AND $3::timestamptz IS NULL AND timestamp >= NOW() - INTERVAL '24 hours') OR
+  (timestamp BETWEEN $2 AND $3)
+)
+GROUP BY time;
+
 -- name: GetReferrals :many
 SELECT referrer, COUNT(DISTINCT visitor_id) AS visitor_count
 FROM apps a JOIN events e ON a.tracking_id = e.tracking_id

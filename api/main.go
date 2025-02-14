@@ -93,6 +93,7 @@ func main() {
 		analytics.GET("devices", WrapHandler(analyticsHandler.GetDevices))
 		analytics.GET("os", WrapHandler(analyticsHandler.GetOS))
 		analytics.GET("visitors", WrapHandler(analyticsHandler.GetVisitors))
+		analytics.GET("pageviews", WrapHandler(analyticsHandler.GetPageViews))
 	}
 
 	port := viper.GetString("PORT")
