@@ -106,15 +106,12 @@ func (suite *DatabaseSuite) createTestApp(userID uuid.UUID) App {
 }
 
 func (suite *DatabaseSuite) createTestEvent(trackingID uuid.UUID) {
-	url := faker.URL()
-	referrer := faker.URL()
-
 	err := suite.querier.CreateEvent(suite.ctx, CreateEventParams{
 		VisitorID:       faker.Word(),
 		TrackingID:      trackingID,
 		EventType:       "pageview",
-		Url:             &url,
-		Referrer:        &referrer,
+		Url:             stringPtr(faker.URL()),
+		Referrer:        stringPtr(faker.URL()),
 		Country:         faker.GetCountryInfo().Name,
 		Browser:         "Safari",
 		Device:          "iPhone",
@@ -208,15 +205,13 @@ func (suite *DatabaseSuite) TestCreateApp() {
 func (suite *DatabaseSuite) TestCreateEvent() {
 	userID := suite.createTestUser()
 	app := suite.createTestApp(userID)
-	url := faker.URL()
-	referrer := faker.URL()
 
 	err := suite.querier.CreateEvent(suite.ctx, CreateEventParams{
 		VisitorID:       faker.Word(),
 		TrackingID:      app.TrackingID,
 		EventType:       "pageview",
-		Url:             &url,
-		Referrer:        &referrer,
+		Url:             stringPtr(faker.URL()),
+		Referrer:        stringPtr(faker.URL()),
 		Country:         faker.GetCountryInfo().Name,
 		Browser:         "Safari",
 		Device:          "iPhone",
@@ -357,6 +352,10 @@ func (suite *DatabaseSuite) TestGetOS() {
 	})
 	suite.NoError(err)
 	suite.Greater(len(os), 0)
+}
+
+func stringPtr(s string) *string {
+	return &s
 }
 
 func TestDatabaseSuite(t *testing.T) {
