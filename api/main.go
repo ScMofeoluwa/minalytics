@@ -61,8 +61,8 @@ func main() {
 		logger.Fatal("Failed to connect to database", zap.Error(err))
 	}
 
-	queries := database.New(connPool)
-	analyticsService := NewAnalyticsService(queries, geoDB)
+	querier := database.New(connPool)
+	analyticsService := NewAnalyticsService(querier, geoDB)
 	analyticsHandler := NewAnalyticsHandler(analyticsService, logger)
 
 	r := gin.Default()

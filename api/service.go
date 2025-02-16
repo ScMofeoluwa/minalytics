@@ -20,19 +20,19 @@ var ErrInvalidToken = errors.New("invalid token")
 var ErrAppNotFound = errors.New("app not found")
 
 type AnalyticsService struct {
-	Queries *database.Queries
+	Querier database.Querier
 	GeoDB   *geoip2.Reader
 }
 
-func NewAnalyticsService(queries *database.Queries, geoDB *geoip2.Reader) *AnalyticsService {
+func NewAnalyticsService(querier database.Querier, geoDB *geoip2.Reader) *AnalyticsService {
 	return &AnalyticsService{
-		Queries: queries,
+		Querier: querier,
 		GeoDB:   geoDB,
 	}
 }
 
 func (s *AnalyticsService) SignIn(ctx context.Context, email string) (string, error) {
-	userId, err := s.Queries.GetOrCreateUser(ctx, email)
+	userId, err := s.Querier.GetOrCreateUser(ctx, email)
 	if err != nil {
 		return "", err
 	}
@@ -40,7 +40,7 @@ func (s *AnalyticsService) SignIn(ctx context.Context, email string) (string, er
 }
 
 func (s *AnalyticsService) TrackEvent(ctx context.Context, data EventPayload) error {
-	if _, err := s.Queries.GetAppByTrackingID(ctx, data.Tracking.TrackingID); err != nil {
+	if _, err := s.Querier.GetAppByTrackingID(ctx, data.Tracking.TrackingID); err != nil {
 		return err
 	}
 
@@ -59,7 +59,7 @@ func (s *AnalyticsService) TrackEvent(ctx context.Context, data EventPayload) er
 		Details:         data.Tracking.Details,
 	}
 
-	if err := s.Queries.CreateEvent(ctx, params); err != nil {
+	if err := s.Querier.CreateEvent(ctx, params); err != nil {
 		return err
 	}
 	return nil
@@ -71,7 +71,7 @@ func (s *AnalyticsService) CreateApp(ctx context.Context, userID uuid.UUID, name
 		Name:   name,
 	}
 
-	app_, err := s.Queries.CreateApp(ctx, params)
+	app_, err := s.Querier.CreateApp(ctx, params)
 	if err != nil {
 		return &App{}, err
 	}
@@ -85,7 +85,7 @@ func (s *AnalyticsService) CreateApp(ctx context.Context, userID uuid.UUID, name
 }
 
 func (s *AnalyticsService) GetApps(ctx context.Context, userID uuid.UUID) ([]App, error) {
-	apps_, err := s.Queries.GetApps(ctx, userID)
+	apps_, err := s.Querier.GetApps(ctx, userID)
 	if err != nil {
 		return []App{}, err
 	}
@@ -108,7 +108,7 @@ func (s *AnalyticsService) GetReferrals(ctx context.Context, data RequestPayload
 		Column3:    data.EndDate,
 	}
 
-	stats, err := s.Queries.GetReferrals(ctx, params)
+	stats, err := s.Querier.GetReferrals(ctx, params)
 	if err != nil {
 		return []ReferralStats{}, err
 	}
@@ -131,7 +131,7 @@ func (s *AnalyticsService) GetPages(ctx context.Context, data RequestPayload) ([
 		Column3:    data.EndDate,
 	}
 
-	stats, err := s.Queries.GetPages(ctx, params)
+	stats, err := s.Querier.GetPages(ctx, params)
 	if err != nil {
 		return []PageStats{}, err
 	}
@@ -164,7 +164,7 @@ func (s *AnalyticsService) GetBrowsers(ctx context.Context, data RequestPayload)
 		Column3:    data.EndDate,
 	}
 
-	stats, err := s.Queries.GetBrowsers(ctx, params)
+	stats, err := s.Querier.GetBrowsers(ctx, params)
 	if err != nil {
 		return []BrowserStats{}, err
 	}
@@ -187,7 +187,7 @@ func (s *AnalyticsService) GetCountries(ctx context.Context, data RequestPayload
 		Column3:    data.EndDate,
 	}
 
-	stats, err := s.Queries.GetCountries(ctx, params)
+	stats, err := s.Querier.GetCountries(ctx, params)
 	if err != nil {
 		return []CountryStats{}, err
 	}
@@ -210,7 +210,7 @@ func (s *AnalyticsService) GetDevices(ctx context.Context, data RequestPayload) 
 		Column3:    data.EndDate,
 	}
 
-	stats, err := s.Queries.GetDevices(ctx, params)
+	stats, err := s.Querier.GetDevices(ctx, params)
 	if err != nil {
 		return []DeviceStats{}, err
 	}
@@ -233,7 +233,7 @@ func (s *AnalyticsService) GetOS(ctx context.Context, data RequestPayload) ([]OS
 		Column3:    data.EndDate,
 	}
 
-	stats, err := s.Queries.GetOS(ctx, params)
+	stats, err := s.Querier.GetOS(ctx, params)
 	if err != nil {
 		return []OSStats{}, err
 	}
@@ -257,7 +257,7 @@ func (s *AnalyticsService) GetVisitors(ctx context.Context, data RequestPayload)
 		TimeBucket: data.BucketSize,
 	}
 
-	stats, err := s.Queries.GetVisitors(ctx, params)
+	stats, err := s.Querier.GetVisitors(ctx, params)
 	if err != nil {
 		return []VisitorStats{}, err
 	}
@@ -281,7 +281,7 @@ func (s *AnalyticsService) GetPageViews(ctx context.Context, data RequestPayload
 		TimeBucket: data.BucketSize,
 	}
 
-	stats, err := s.Queries.GetPageViews(ctx, params)
+	stats, err := s.Querier.GetPageViews(ctx, params)
 	if err != nil {
 		return []PageViewStats{}, err
 	}
@@ -324,7 +324,7 @@ func (s *AnalyticsService) ParseUserAgent(ua string) *UserAgentDetails {
 }
 
 func (s *AnalyticsService) ValidateAppAccess(ctx context.Context, userID, trackingID uuid.UUID) error {
-	app, err := s.Queries.GetAppByTrackingID(ctx, trackingID)
+	app, err := s.Querier.GetAppByTrackingID(ctx, trackingID)
 	if err != nil {
 		return err
 	}
