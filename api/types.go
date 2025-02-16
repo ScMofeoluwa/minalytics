@@ -1,11 +1,30 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+type AnalyticsServiceInterface interface {
+	SignIn(context.Context, string) (string, error)
+	TrackEvent(context.Context, EventPayload) error
+	CreateApp(context.Context, uuid.UUID, string) (*App, error)
+	GetApps(context.Context, uuid.UUID) ([]App, error)
+	GetReferrals(context.Context, RequestPayload) ([]ReferralStats, error)
+	GetPages(context.Context, RequestPayload) ([]PageStats, error)
+	GetBrowsers(context.Context, RequestPayload) ([]BrowserStats, error)
+	GetCountries(context.Context, RequestPayload) ([]CountryStats, error)
+	GetDevices(context.Context, RequestPayload) ([]DeviceStats, error)
+	GetOS(context.Context, RequestPayload) ([]OSStats, error)
+	GetVisitors(context.Context, RequestPayload) ([]VisitorStats, error)
+	GetPageViews(context.Context, RequestPayload) ([]PageViewStats, error)
+	ValidateAppAccess(context.Context, uuid.UUID, uuid.UUID) error
+	ResolveGeoLocation(string) (*GeoLocation, error)
+	ParseUserAgent(string) *UserAgentDetails
+}
 
 type TrackingData struct {
 	VisitorID  string                 `json:"visitorID"`
@@ -76,6 +95,11 @@ type VisitorStats struct {
 	Visitors int    `json:"visitors"`
 }
 
+type PageViewStats struct {
+	Time  string `json:"time"`
+	Views int    `json:"views"`
+}
+
 type RequestPayload struct {
 	TrackingID uuid.UUID
 	BucketSize string
@@ -131,6 +155,11 @@ type OSResponse struct {
 
 type VisitorResponse struct {
 	Data VisitorStats
+	APIStatus
+}
+
+type PageViewResponse struct {
+	Data PageViewStats
 	APIStatus
 }
 
