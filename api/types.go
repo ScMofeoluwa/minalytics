@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type AnalyticsServiceInterface interface {
+type AnalyticsService interface {
 	SignIn(context.Context, string) (string, error)
 	TrackEvent(context.Context, EventPayload) error
 	CreateApp(context.Context, uuid.UUID, string) (*App, error)

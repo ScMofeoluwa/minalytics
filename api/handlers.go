@@ -15,11 +15,11 @@ import (
 )
 
 type AnalyticsHandler struct {
-	service *AnalyticsService
+	service AnalyticsService
 	logger  *zap.Logger
 }
 
-func NewAnalyticsHandler(service *AnalyticsService, logger *zap.Logger) *AnalyticsHandler {
+func NewAnalyticsHandler(service AnalyticsService, logger *zap.Logger) *AnalyticsHandler {
 	return &AnalyticsHandler{
 		service: service,
 		logger:  logger,

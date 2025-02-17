@@ -19,19 +19,19 @@ import (
 var ErrInvalidToken = errors.New("invalid token")
 var ErrAppNotFound = errors.New("app not found")
 
-type AnalyticsService struct {
+type analyticsService struct {
 	Querier database.Querier
 	GeoDB   *geoip2.Reader
 }
 
-func NewAnalyticsService(querier database.Querier, geoDB *geoip2.Reader) *AnalyticsService {
-	return &AnalyticsService{
+func NewAnalyticsService(querier database.Querier, geoDB *geoip2.Reader) AnalyticsService {
+	return &analyticsService{
 		Querier: querier,
 		GeoDB:   geoDB,
 	}
 }
 
-func (s *AnalyticsService) SignIn(ctx context.Context, email string) (string, error) {
+func (s *analyticsService) SignIn(ctx context.Context, email string) (string, error) {
 	userId, err := s.Querier.GetOrCreateUser(ctx, email)
 	if err != nil {
 		return "", err
@@ -39,7 +39,7 @@ func (s *AnalyticsService) SignIn(ctx context.Context, email string) (string, er
 	return CreateJWT(userId.String())
 }
 
-func (s *AnalyticsService) TrackEvent(ctx context.Context, data EventPayload) error {
+func (s *analyticsService) TrackEvent(ctx context.Context, data EventPayload) error {
 	if _, err := s.Querier.GetAppByTrackingID(ctx, data.Tracking.TrackingID); err != nil {
 		return err
 	}
@@ -65,7 +65,7 @@ func (s *AnalyticsService) TrackEvent(ctx context.Context, data EventPayload) er
 	return nil
 }
 
-func (s *AnalyticsService) CreateApp(ctx context.Context, userID uuid.UUID, name string) (*App, error) {
+func (s *analyticsService) CreateApp(ctx context.Context, userID uuid.UUID, name string) (*App, error) {
 	params := database.CreateAppParams{
 		UserID: userID,
 		Name:   name,
@@ -84,7 +84,7 @@ func (s *AnalyticsService) CreateApp(ctx context.Context, userID uuid.UUID, name
 	return app, nil
 }
 
-func (s *AnalyticsService) GetApps(ctx context.Context, userID uuid.UUID) ([]App, error) {
+func (s *analyticsService) GetApps(ctx context.Context, userID uuid.UUID) ([]App, error) {
 	apps_, err := s.Querier.GetApps(ctx, userID)
 	if err != nil {
 		return []App{}, err
@@ -101,7 +101,7 @@ func (s *AnalyticsService) GetApps(ctx context.Context, userID uuid.UUID) ([]App
 	return apps, nil
 }
 
-func (s *AnalyticsService) GetReferrals(ctx context.Context, data RequestPayload) ([]ReferralStats, error) {
+func (s *analyticsService) GetReferrals(ctx context.Context, data RequestPayload) ([]ReferralStats, error) {
 	params := database.GetReferralsParams{
 		TrackingID: data.TrackingID,
 		Column2:    data.StartDate,
@@ -124,7 +124,7 @@ func (s *AnalyticsService) GetReferrals(ctx context.Context, data RequestPayload
 	return referralStats, nil
 }
 
-func (s *AnalyticsService) GetPages(ctx context.Context, data RequestPayload) ([]PageStats, error) {
+func (s *analyticsService) GetPages(ctx context.Context, data RequestPayload) ([]PageStats, error) {
 	params := database.GetPagesParams{
 		TrackingID: data.TrackingID,
 		Column2:    data.StartDate,
@@ -157,7 +157,7 @@ func (s *AnalyticsService) GetPages(ctx context.Context, data RequestPayload) ([
 	return pageStats, nil
 }
 
-func (s *AnalyticsService) GetBrowsers(ctx context.Context, data RequestPayload) ([]BrowserStats, error) {
+func (s *analyticsService) GetBrowsers(ctx context.Context, data RequestPayload) ([]BrowserStats, error) {
 	params := database.GetBrowsersParams{
 		TrackingID: data.TrackingID,
 		Column2:    data.StartDate,
@@ -180,7 +180,7 @@ func (s *AnalyticsService) GetBrowsers(ctx context.Context, data RequestPayload)
 	return browserStats, nil
 }
 
-func (s *AnalyticsService) GetCountries(ctx context.Context, data RequestPayload) ([]CountryStats, error) {
+func (s *analyticsService) GetCountries(ctx context.Context, data RequestPayload) ([]CountryStats, error) {
 	params := database.GetCountriesParams{
 		TrackingID: data.TrackingID,
 		Column2:    data.StartDate,
@@ -203,7 +203,7 @@ func (s *AnalyticsService) GetCountries(ctx context.Context, data RequestPayload
 	return countryStats, nil
 }
 
-func (s *AnalyticsService) GetDevices(ctx context.Context, data RequestPayload) ([]DeviceStats, error) {
+func (s *analyticsService) GetDevices(ctx context.Context, data RequestPayload) ([]DeviceStats, error) {
 	params := database.GetDevicesParams{
 		TrackingID: data.TrackingID,
 		Column2:    data.StartDate,
@@ -226,7 +226,7 @@ func (s *AnalyticsService) GetDevices(ctx context.Context, data RequestPayload) 
 	return deviceStats, nil
 }
 
-func (s *AnalyticsService) GetOS(ctx context.Context, data RequestPayload) ([]OSStats, error) {
+func (s *analyticsService) GetOS(ctx context.Context, data RequestPayload) ([]OSStats, error) {
 	params := database.GetOSParams{
 		TrackingID: data.TrackingID,
 		Column2:    data.StartDate,
@@ -249,7 +249,7 @@ func (s *AnalyticsService) GetOS(ctx context.Context, data RequestPayload) ([]OS
 	return osstats, nil
 }
 
-func (s *AnalyticsService) GetVisitors(ctx context.Context, data RequestPayload) ([]VisitorStats, error) {
+func (s *analyticsService) GetVisitors(ctx context.Context, data RequestPayload) ([]VisitorStats, error) {
 	params := database.GetVisitorsParams{
 		TrackingID: data.TrackingID,
 		Column2:    data.StartDate,
@@ -273,7 +273,7 @@ func (s *AnalyticsService) GetVisitors(ctx context.Context, data RequestPayload)
 	return visitorStats, nil
 }
 
-func (s *AnalyticsService) GetPageViews(ctx context.Context, data RequestPayload) ([]PageViewStats, error) {
+func (s *analyticsService) GetPageViews(ctx context.Context, data RequestPayload) ([]PageViewStats, error) {
 	params := database.GetPageViewsParams{
 		TrackingID: data.TrackingID,
 		Column2:    data.StartDate,
@@ -297,7 +297,7 @@ func (s *AnalyticsService) GetPageViews(ctx context.Context, data RequestPayload
 	return pageViewStats, nil
 }
 
-func (s *AnalyticsService) ResolveGeoLocation(remoteAddr string) (*GeoLocation, error) {
+func (s *analyticsService) ResolveGeoLocation(remoteAddr string) (*GeoLocation, error) {
 	ip := net.ParseIP(remoteAddr)
 	record, err := s.GeoDB.City(ip)
 	if err != nil {
@@ -314,7 +314,7 @@ func (s *AnalyticsService) ResolveGeoLocation(remoteAddr string) (*GeoLocation, 
 	return geoLocation, nil
 }
 
-func (s *AnalyticsService) ParseUserAgent(ua string) *UserAgentDetails {
+func (s *analyticsService) ParseUserAgent(ua string) *UserAgentDetails {
 	parsedUA := useragent.Parse(ua)
 	return &UserAgentDetails{
 		Browser:         parsedUA.Name,
@@ -323,7 +323,7 @@ func (s *AnalyticsService) ParseUserAgent(ua string) *UserAgentDetails {
 	}
 }
 
-func (s *AnalyticsService) ValidateAppAccess(ctx context.Context, userID, trackingID uuid.UUID) error {
+func (s *analyticsService) ValidateAppAccess(ctx context.Context, userID, trackingID uuid.UUID) error {
 	app, err := s.Querier.GetAppByTrackingID(ctx, trackingID)
 	if err != nil {
 		return err

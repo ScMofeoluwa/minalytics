@@ -44,7 +44,7 @@ func JWTMiddleware() gin.HandlerFunc {
 	}
 }
 
-func AppAccessMiddleware(s *AnalyticsService) gin.HandlerFunc {
+func AppAccessMiddleware(s AnalyticsService) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		userID, exists := ctx.Get("userID")
 		if !exists {
