@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"database/sql"
@@ -26,6 +26,16 @@ func NewAnalyticsHandler(service AnalyticsService, logger *zap.Logger) *Analytic
 	}
 }
 
+// @Summary User Sign-In
+// @Description Initiates OAuth authentication with the specified provider and returns a JWT token upon successful login.
+// @Tags Auth
+// @Accept  json
+// @Produce  json
+// @Param provider path string true "OAuth provider (e.g., google, github)"
+// @Success 200 {string} string "JWT token"
+// @Failure 400 {object} APIStatus "Invalid provider or missing provider"
+// @Failure 500 {object} APIStatus "Internal server error"
+// @Router /auth/{provider} [get]
 func (h *AnalyticsHandler) SignIn(ctx *gin.Context) {
 	gothic.GetProviderName = func(r *http.Request) (string, error) {
 		return ctx.Param("provider"), nil
@@ -150,6 +160,86 @@ func (h *AnalyticsHandler) GetApps(ctx *gin.Context) APIResponse {
 	}
 
 	return NewSuccessResponse(apps, http.StatusOK, "apps fetched successfully")
+}
+
+// @Summary Update App
+// @Description Updates app by tracking ID
+// @Tags Apps
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Param trackingID path string true "Tracking ID of the app to delete"
+// @Param request body CreateAppRequest true "app name"
+// @Success 200 {object} AppResponse "app name successfully changed"
+// @Failure 400 {object} APIStatus "trackingID is required"
+// @Failure 400 {object} APIStatus "invalid request body"
+// @Failure 401 {object} APIStatus "userID not found in context"
+// @Failure 500 {object} APIStatus "failed to update app"
+// @Router /apps/{trackingID} [patch]
+func (h *AnalyticsHandler) UpdateApp(ctx *gin.Context) APIResponse {
+	userID, exists := ctx.Get("userID")
+	if !exists {
+		h.logger.Warn("userID not found in context")
+		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
+	}
+	user := userID.(uuid.UUID)
+
+	trackingID_ := ctx.Param("trackingID")
+	if trackingID_ == "" {
+		return NewErrorResponse(http.StatusBadRequest, "trackingID is required")
+	}
+
+	trackingID := uuid.MustParse(trackingID_)
+
+	var req CreateAppRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		h.logger.Error("invalid request body", zap.Error(err))
+		return NewErrorResponse(http.StatusBadRequest, "invalid request body")
+	}
+
+	app, err := h.service.UpdateApp(ctx, req.Name, trackingID, user)
+	if err != nil {
+		h.logger.Error("failed to update app", zap.Error(err))
+		return NewErrorResponse(http.StatusInternalServerError, "failed to update app")
+	}
+
+	return NewSuccessResponse(app, http.StatusOK, "app successfully updated")
+}
+
+// @Summary Delete App
+// @Description Updates app by tracking ID
+// @Tags Apps
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Param trackingID path string true "Tracking ID of the app to delete"
+// @Success 200 {string} string "app successfully deleted"
+// @Failure 400 {object} APIStatus "trackingID is required"
+// @Failure 400 {object} APIStatus "invalid request body"
+// @Failure 401 {object} APIStatus "userID not found in context"
+// @Failure 500 {object} APIStatus "failed to delete app"
+// @Router /apps/{trackingID} [delete]
+func (h *AnalyticsHandler) DeleteApp(ctx *gin.Context) APIResponse {
+	userID, exists := ctx.Get("userID")
+	if !exists {
+		h.logger.Warn("userID not found in context")
+		return NewErrorResponse(http.StatusUnauthorized, "userID not found in context")
+	}
+	user := userID.(uuid.UUID)
+
+	trackingID_ := ctx.Param("trackingID")
+	if trackingID_ == "" {
+		return NewErrorResponse(http.StatusBadRequest, "trackingID is required")
+	}
+
+	trackingID := uuid.MustParse(trackingID_)
+
+	if err := h.service.DeleteApp(ctx, trackingID, user); err != nil {
+		h.logger.Error("failed to delete app", zap.Error(err))
+		return NewErrorResponse(http.StatusInternalServerError, "failed to delete app")
+	}
+
+	return NewSuccessResponse(nil, http.StatusOK, "app successfully updated")
 }
 
 // @Summary Get Referrals

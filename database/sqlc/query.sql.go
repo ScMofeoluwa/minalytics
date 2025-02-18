@@ -13,7 +13,7 @@ import (
 )
 
 const checkAppExists = `-- name: CheckAppExists :one
-SELECT id, tracking_id, user_id, name, created_at FROM apps WHERE apps.user_id = $1 AND apps.name = $2
+SELECT id, tracking_id, user_id, name, created_at FROM apps WHERE user_id = $1 AND name = $2
 `
 
 type CheckAppExistsParams struct {
@@ -94,8 +94,17 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error 
 	return err
 }
 
+const deleteApp = `-- name: DeleteApp :exec
+DELETE FROM apps WHERE tracking_id = $1
+`
+
+func (q *Queries) DeleteApp(ctx context.Context, trackingID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteApp, trackingID)
+	return err
+}
+
 const getAppByTrackingID = `-- name: GetAppByTrackingID :one
-SELECT id, tracking_id, user_id, name, created_at FROM apps WHERE apps.tracking_id = $1
+SELECT id, tracking_id, user_id, name, created_at FROM apps WHERE tracking_id = $1
 `
 
 func (q *Queries) GetAppByTrackingID(ctx context.Context, trackingID uuid.UUID) (App, error) {
@@ -112,7 +121,7 @@ func (q *Queries) GetAppByTrackingID(ctx context.Context, trackingID uuid.UUID) 
 }
 
 const getApps = `-- name: GetApps :many
-SELECT id, tracking_id, user_id, name, created_at FROM apps WHERE apps.user_id = $1
+SELECT id, tracking_id, user_id, name, created_at FROM apps WHERE user_id = $1
 `
 
 func (q *Queries) GetApps(ctx context.Context, userID uuid.UUID) ([]App, error) {
@@ -507,4 +516,29 @@ func (q *Queries) GetVisitors(ctx context.Context, arg GetVisitorsParams) ([]Get
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateApp = `-- name: UpdateApp :one
+UPDATE apps
+SET name = $1
+WHERE tracking_id = $2
+RETURNING id, tracking_id, user_id, name, created_at
+`
+
+type UpdateAppParams struct {
+	Name       string    `json:"name"`
+	TrackingID uuid.UUID `json:"tracking_id"`
+}
+
+func (q *Queries) UpdateApp(ctx context.Context, arg UpdateAppParams) (App, error) {
+	row := q.db.QueryRow(ctx, updateApp, arg.Name, arg.TrackingID)
+	var i App
+	err := row.Scan(
+		&i.ID,
+		&i.TrackingID,
+		&i.UserID,
+		&i.Name,
+		&i.CreatedAt,
+	)
+	return i, err
 }

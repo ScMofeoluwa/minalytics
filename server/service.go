@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"context"
@@ -108,6 +108,37 @@ func (s *analyticsService) GetApps(ctx context.Context, userID uuid.UUID) ([]App
 		})
 	}
 	return apps, nil
+}
+
+func (s *analyticsService) UpdateApp(ctx context.Context, name string, trackingID, userID uuid.UUID) (*App, error) {
+	if err := s.ValidateAppAccess(ctx, userID, trackingID); err != nil {
+		return &App{}, err
+	}
+
+	params := database.UpdateAppParams{
+		TrackingID: trackingID,
+		Name:       name,
+	}
+
+	app_, err := s.Querier.UpdateApp(ctx, params)
+	if err != nil {
+		return &App{}, err
+	}
+
+	app := &App{
+		Name:       app_.Name,
+		TrackingID: app_.TrackingID,
+		CreatedAt:  app_.CreatedAt.Time,
+	}
+	return app, nil
+}
+
+func (s *analyticsService) DeleteApp(ctx context.Context, trackingID, userID uuid.UUID) error {
+	if err := s.ValidateAppAccess(ctx, userID, trackingID); err != nil {
+		return err
+	}
+
+	return s.Querier.DeleteApp(ctx, trackingID)
 }
 
 func (s *analyticsService) GetReferrals(ctx context.Context, data RequestPayload) ([]ReferralStats, error) {
@@ -337,7 +368,7 @@ func (s *analyticsService) ValidateAppAccess(ctx context.Context, userID, tracki
 	if err != nil {
 		return err
 	}
-	if app.TrackingID != trackingID {
+	if app.UserID != userID {
 		return ErrAppNotFound
 	}
 	return nil

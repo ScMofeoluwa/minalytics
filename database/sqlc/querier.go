@@ -14,6 +14,7 @@ type Querier interface {
 	CheckAppExists(ctx context.Context, arg CheckAppExistsParams) (App, error)
 	CreateApp(ctx context.Context, arg CreateAppParams) (App, error)
 	CreateEvent(ctx context.Context, arg CreateEventParams) error
+	DeleteApp(ctx context.Context, trackingID uuid.UUID) error
 	GetAppByTrackingID(ctx context.Context, trackingID uuid.UUID) (App, error)
 	GetApps(ctx context.Context, userID uuid.UUID) ([]App, error)
 	GetBrowsers(ctx context.Context, arg GetBrowsersParams) ([]GetBrowsersRow, error)
@@ -25,6 +26,7 @@ type Querier interface {
 	GetPages(ctx context.Context, arg GetPagesParams) ([]GetPagesRow, error)
 	GetReferrals(ctx context.Context, arg GetReferralsParams) ([]GetReferralsRow, error)
 	GetVisitors(ctx context.Context, arg GetVisitorsParams) ([]GetVisitorsRow, error)
+	UpdateApp(ctx context.Context, arg UpdateAppParams) (App, error)
 }
 
 var _ Querier = (*Queries)(nil)

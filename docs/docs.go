@@ -641,6 +641,167 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/apps/{trackingID}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates app by tracking ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Apps"
+                ],
+                "summary": "Delete App",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tracking ID of the app to delete",
+                        "name": "trackingID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "app successfully deleted",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    },
+                    "401": {
+                        "description": "userID not found in context",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    },
+                    "500": {
+                        "description": "failed to delete app",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates app by tracking ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Apps"
+                ],
+                "summary": "Update App",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Tracking ID of the app to delete",
+                        "name": "trackingID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "app name",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateAppRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "app name successfully changed",
+                        "schema": {
+                            "$ref": "#/definitions/main.AppResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    },
+                    "401": {
+                        "description": "userID not found in context",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    },
+                    "500": {
+                        "description": "failed to update app",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/{provider}": {
+            "get": {
+                "description": "Initiates OAuth authentication with the specified provider and returns a JWT token upon successful login.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "User Sign-In",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "OAuth provider (e.g., google, github)",
+                        "name": "provider",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JWT token",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid provider or missing provider",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/main.APIStatus"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {

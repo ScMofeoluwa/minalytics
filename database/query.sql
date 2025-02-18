@@ -17,14 +17,23 @@ INSERT INTO events (
   visitor_id, tracking_id, event_type, url, referrer, country, browser, device, operating_system, details
 ) VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10 );
 
+-- name: UpdateApp :one
+UPDATE apps
+SET name = $1
+WHERE tracking_id = $2
+RETURNING *;
+
+-- name: DeleteApp :exec
+DELETE FROM apps WHERE tracking_id = $1;
+
 -- name: GetAppByTrackingID :one
-SELECT * FROM apps WHERE apps.tracking_id = $1;
+SELECT * FROM apps WHERE tracking_id = $1;
 
 -- name: CheckAppExists :one
-SELECT * FROM apps WHERE apps.user_id = $1 AND apps.name = $2;
+SELECT * FROM apps WHERE user_id = $1 AND name = $2;
 
 -- name: GetApps :many
-SELECT * FROM apps WHERE apps.user_id = $1;
+SELECT * FROM apps WHERE user_id = $1;
 
 -- name: GetVisitors :many
 SELECT time_bucket($4, timestamp::timestamptz)::timestamptz AS time, COUNT(DISTINCT visitor_id) AS visitors

@@ -19,3 +19,9 @@ migrate-fix v:
 
 sqlc:
   sqlc generate
+
+mock:
+  mockery --name=Querier --filename=querier.go --outpkg=mocks --with-expecter=true --recursive=true
+
+test:
+  go test -v ./...

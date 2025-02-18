@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"context"
@@ -12,6 +12,8 @@ type AnalyticsService interface {
 	SignIn(context.Context, string) (string, error)
 	TrackEvent(context.Context, EventPayload) error
 	CreateApp(context.Context, uuid.UUID, string) (*App, error)
+	UpdateApp(context.Context, string, uuid.UUID, uuid.UUID) (*App, error)
+	DeleteApp(context.Context, uuid.UUID, uuid.UUID) error
 	GetApps(context.Context, uuid.UUID) ([]App, error)
 	GetReferrals(context.Context, RequestPayload) ([]ReferralStats, error)
 	GetPages(context.Context, RequestPayload) ([]PageStats, error)

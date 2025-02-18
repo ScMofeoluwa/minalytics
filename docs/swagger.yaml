@@ -544,6 +544,111 @@ paths:
       summary: Create App
       tags:
       - Apps
+  /apps/{trackingID}:
+    delete:
+      consumes:
+      - application/json
+      description: Updates app by tracking ID
+      parameters:
+      - description: Tracking ID of the app to delete
+        in: path
+        name: trackingID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: app successfully deleted
+          schema:
+            type: string
+        "400":
+          description: invalid request body
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+        "401":
+          description: userID not found in context
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+        "500":
+          description: failed to delete app
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+      security:
+      - BearerAuth: []
+      summary: Delete App
+      tags:
+      - Apps
+    patch:
+      consumes:
+      - application/json
+      description: Updates app by tracking ID
+      parameters:
+      - description: Tracking ID of the app to delete
+        in: path
+        name: trackingID
+        required: true
+        type: string
+      - description: app name
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateAppRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: app name successfully changed
+          schema:
+            $ref: '#/definitions/main.AppResponse'
+        "400":
+          description: invalid request body
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+        "401":
+          description: userID not found in context
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+        "500":
+          description: failed to update app
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+      security:
+      - BearerAuth: []
+      summary: Update App
+      tags:
+      - Apps
+  /auth/{provider}:
+    get:
+      consumes:
+      - application/json
+      description: Initiates OAuth authentication with the specified provider and
+        returns a JWT token upon successful login.
+      parameters:
+      - description: OAuth provider (e.g., google, github)
+        in: path
+        name: provider
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT token
+          schema:
+            type: string
+        "400":
+          description: Invalid provider or missing provider
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/main.APIStatus'
+      summary: User Sign-In
+      tags:
+      - Auth
 securityDefinitions:
   BearerAuth:
     in: header

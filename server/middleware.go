@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"net/http"
@@ -38,7 +38,7 @@ func JWTMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		userID, _ := uuid.Parse(userIDStr)
+		userID := uuid.MustParse(userIDStr)
 		ctx.Set("userID", userID)
 		ctx.Next()
 	}
@@ -61,14 +61,9 @@ func AppAccessMiddleware(s AnalyticsService) gin.HandlerFunc {
 			return
 		}
 
-		trackingID, err := uuid.Parse(trackingID_)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid trackingID format"})
-			ctx.Abort()
-			return
-		}
+		trackingID := uuid.MustParse(trackingID_)
 
-		err = s.ValidateAppAccess(ctx, user, trackingID)
+		err := s.ValidateAppAccess(ctx, user, trackingID)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			ctx.Abort()

@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"context"
@@ -28,7 +28,7 @@ func (suite *ServiceSuite) SetupSuite() {
 	suite.ctx = context.Background()
 
 	//initialise Geo Database
-	geoDB, err := geoip2.Open("database/GeoLite2-City.mmdb")
+	geoDB, err := geoip2.Open("../database/GeoLite2-City.mmdb")
 	if err != nil {
 		suite.FailNowf("failed to open GeoIP2 database", err.Error())
 	}
@@ -803,15 +803,15 @@ func (suite *ServiceSuite) TestValidateAppAccess() {
 		name        string
 		userID      uuid.UUID
 		trackingID  uuid.UUID
-		mockSetup   func(trackingID uuid.UUID)
+		mockSetup   func(userID uuid.UUID)
 		expectedErr error
 	}{
 		{
 			name:       "successful validation",
 			userID:     uuid.New(),
 			trackingID: uuid.New(),
-			mockSetup: func(trackingID uuid.UUID) {
-				suite.mockRepo.EXPECT().GetAppByTrackingID(mock.Anything, mock.Anything).Return(database.App{TrackingID: trackingID}, nil).Once()
+			mockSetup: func(userID uuid.UUID) {
+				suite.mockRepo.EXPECT().GetAppByTrackingID(mock.Anything, mock.Anything).Return(database.App{UserID: userID}, nil).Once()
 			},
 			expectedErr: nil,
 		},
@@ -819,7 +819,7 @@ func (suite *ServiceSuite) TestValidateAppAccess() {
 			name:       "app not found",
 			userID:     uuid.New(),
 			trackingID: uuid.New(),
-			mockSetup: func(trackingID uuid.UUID) {
+			mockSetup: func(userID uuid.UUID) {
 				suite.mockRepo.EXPECT().GetAppByTrackingID(mock.Anything, mock.Anything).Return(database.App{}, errors.New("app not found")).Once()
 			},
 			expectedErr: errors.New("app not found"),
@@ -828,7 +828,7 @@ func (suite *ServiceSuite) TestValidateAppAccess() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			tc.mockSetup(tc.trackingID)
+			tc.mockSetup(tc.userID)
 			err := suite.service.ValidateAppAccess(suite.ctx, tc.userID, tc.trackingID)
 			if tc.expectedErr != nil {
 				suite.Error(err)
