@@ -11,6 +11,7 @@ import (
 )
 
 type Querier interface {
+	CheckAppExists(ctx context.Context, arg CheckAppExistsParams) (App, error)
 	CreateApp(ctx context.Context, arg CreateAppParams) (App, error)
 	CreateEvent(ctx context.Context, arg CreateEventParams) error
 	GetAppByTrackingID(ctx context.Context, trackingID uuid.UUID) (App, error)

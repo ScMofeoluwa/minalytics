@@ -24,6 +24,63 @@ func (_m *Querier) EXPECT() *Querier_Expecter {
 	return &Querier_Expecter{mock: &_m.Mock}
 }
 
+// CheckAppExists provides a mock function with given fields: ctx, arg
+func (_m *Querier) CheckAppExists(ctx context.Context, arg database.CheckAppExistsParams) (database.App, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CheckAppExists")
+	}
+
+	var r0 database.App
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.CheckAppExistsParams) (database.App, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, database.CheckAppExistsParams) database.App); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(database.App)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, database.CheckAppExistsParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Querier_CheckAppExists_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CheckAppExists'
+type Querier_CheckAppExists_Call struct {
+	*mock.Call
+}
+
+// CheckAppExists is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg database.CheckAppExistsParams
+func (_e *Querier_Expecter) CheckAppExists(ctx interface{}, arg interface{}) *Querier_CheckAppExists_Call {
+	return &Querier_CheckAppExists_Call{Call: _e.mock.On("CheckAppExists", ctx, arg)}
+}
+
+func (_c *Querier_CheckAppExists_Call) Run(run func(ctx context.Context, arg database.CheckAppExistsParams)) *Querier_CheckAppExists_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.CheckAppExistsParams))
+	})
+	return _c
+}
+
+func (_c *Querier_CheckAppExists_Call) Return(_a0 database.App, _a1 error) *Querier_CheckAppExists_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Querier_CheckAppExists_Call) RunAndReturn(run func(context.Context, database.CheckAppExistsParams) (database.App, error)) *Querier_CheckAppExists_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateApp provides a mock function with given fields: ctx, arg
 func (_m *Querier) CreateApp(ctx context.Context, arg database.CreateAppParams) (database.App, error) {
 	ret := _m.Called(ctx, arg)

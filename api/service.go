@@ -18,6 +18,7 @@ import (
 
 var ErrInvalidToken = errors.New("invalid token")
 var ErrAppNotFound = errors.New("app not found")
+var ErrAppExists = errors.New("app already exists")
 
 type analyticsService struct {
 	Querier database.Querier
@@ -66,12 +67,20 @@ func (s *analyticsService) TrackEvent(ctx context.Context, data EventPayload) er
 }
 
 func (s *analyticsService) CreateApp(ctx context.Context, userID uuid.UUID, name string) (*App, error) {
-	params := database.CreateAppParams{
+	params := database.CheckAppExistsParams{
+		UserID: userID,
+		Name:   name,
+	}
+	if app, err := s.Querier.CheckAppExists(ctx, params); err == nil && app.TrackingID != uuid.Nil {
+		return &App{}, ErrAppExists
+	}
+
+	createParams := database.CreateAppParams{
 		UserID: userID,
 		Name:   name,
 	}
 
-	app_, err := s.Querier.CreateApp(ctx, params)
+	app_, err := s.Querier.CreateApp(ctx, createParams)
 	if err != nil {
 		return &App{}, err
 	}

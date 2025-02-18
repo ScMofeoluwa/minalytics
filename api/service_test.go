@@ -20,7 +20,7 @@ type ServiceSuite struct {
 	suite.Suite
 	mockRepo *mocks.Querier
 	geoDB    *geoip2.Reader
-	service  AnalyticsServiceInterface
+	service  AnalyticsService
 	ctx      context.Context
 }
 
@@ -155,6 +155,7 @@ func (suite *ServiceSuite) TestCreateApp() {
 			userID:  uuid.New(),
 			appName: "Test App",
 			mockSetup: func() {
+				suite.mockRepo.EXPECT().CheckAppExists(mock.Anything, mock.Anything).Return(database.App{}, nil).Once()
 				suite.mockRepo.EXPECT().CreateApp(mock.Anything, mock.Anything).Return(database.App{
 					Name:       "Test App",
 					TrackingID: uuid.New(),
@@ -164,10 +165,24 @@ func (suite *ServiceSuite) TestCreateApp() {
 			expectedErr: nil,
 		},
 		{
+			name:    "app already exists",
+			userID:  uuid.New(),
+			appName: "Test App",
+			mockSetup: func() {
+				suite.mockRepo.EXPECT().CheckAppExists(mock.Anything, mock.Anything).Return(database.App{
+					Name:       "Test App",
+					TrackingID: uuid.New(),
+					CreatedAt:  sql.NullTime{},
+				}, nil).Once()
+			},
+			expectedErr: errors.New("app already exists"),
+		},
+		{
 			name:    "failed to create app",
 			userID:  uuid.New(),
 			appName: "Test App",
 			mockSetup: func() {
+				suite.mockRepo.EXPECT().CheckAppExists(mock.Anything, mock.Anything).Return(database.App{}, nil).Once()
 				suite.mockRepo.EXPECT().CreateApp(mock.Anything, mock.Anything).Return(database.App{}, errors.New("create app failed")).Once()
 			},
 			expectedErr: errors.New("create app failed"),

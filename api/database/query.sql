@@ -20,6 +20,9 @@ INSERT INTO events (
 -- name: GetAppByTrackingID :one
 SELECT * FROM apps WHERE apps.tracking_id = $1;
 
+-- name: CheckAppExists :one
+SELECT * FROM apps WHERE apps.user_id = $1 AND apps.name = $2;
+
 -- name: GetApps :many
 SELECT * FROM apps WHERE apps.user_id = $1;
 

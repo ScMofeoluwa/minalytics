@@ -12,6 +12,28 @@ import (
 	"github.com/google/uuid"
 )
 
+const checkAppExists = `-- name: CheckAppExists :one
+SELECT id, tracking_id, user_id, name, created_at FROM apps WHERE apps.user_id = $1 AND apps.name = $2
+`
+
+type CheckAppExistsParams struct {
+	UserID uuid.UUID `json:"user_id"`
+	Name   string    `json:"name"`
+}
+
+func (q *Queries) CheckAppExists(ctx context.Context, arg CheckAppExistsParams) (App, error) {
+	row := q.db.QueryRow(ctx, checkAppExists, arg.UserID, arg.Name)
+	var i App
+	err := row.Scan(
+		&i.ID,
+		&i.TrackingID,
+		&i.UserID,
+		&i.Name,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const createApp = `-- name: CreateApp :one
 INSERT INTO apps (
   name, user_id

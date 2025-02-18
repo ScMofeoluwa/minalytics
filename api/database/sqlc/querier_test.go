@@ -12,6 +12,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/suite"
 	"github.com/testcontainers/testcontainers-go"
@@ -195,6 +196,48 @@ func (suite *DatabaseSuite) TestCreateApp() {
 			_, err := suite.querier.CreateApp(suite.ctx, tc.arg)
 			if tc.hasError {
 				suite.Error(err)
+				return
+			}
+			suite.NoError(err)
+		})
+	}
+}
+
+func (suite *DatabaseSuite) TestCheckAppExists() {
+	t := suite.T()
+
+	userID := suite.createTestUser()
+	app := suite.createTestApp(userID)
+
+	testCases := []struct {
+		name        string
+		arg         CheckAppExistsParams
+		expectedErr error
+	}{
+		{
+			name: "app exists",
+			arg: CheckAppExistsParams{
+				Name:   app.Name,
+				UserID: userID,
+			},
+			expectedErr: nil,
+		},
+		{
+			name: "app doesn't exist",
+			arg: CheckAppExistsParams{
+				Name:   faker.Name(),
+				UserID: userID,
+			},
+			expectedErr: pgx.ErrNoRows,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			_, err := suite.querier.CheckAppExists(suite.ctx, tc.arg)
+			if tc.expectedErr != nil {
+				suite.Error(err)
+				suite.Equal(tc.expectedErr.Error(), err.Error())
 				return
 			}
 			suite.NoError(err)
