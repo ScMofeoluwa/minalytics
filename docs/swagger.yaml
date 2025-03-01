@@ -1,10 +1,10 @@
 definitions:
-  main.APIStatus:
+  github_com_ScMofeoluwa_minalytics_shared.APIStatus:
     properties:
       message:
         type: string
     type: object
-  main.App:
+  github_com_ScMofeoluwa_minalytics_shared.App:
     properties:
       created_at:
         type: string
@@ -13,124 +13,126 @@ definitions:
       trackingID:
         type: string
     type: object
-  main.AppResponse:
+  github_com_ScMofeoluwa_minalytics_shared.AppResponse:
     properties:
       data:
-        $ref: '#/definitions/main.App'
+        $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.App'
       message:
         type: string
     type: object
-  main.BrowserResponse:
+  github_com_ScMofeoluwa_minalytics_shared.BrowserResponse:
     properties:
       data:
-        $ref: '#/definitions/main.BrowserStats'
+        $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.BrowserStats'
       message:
         type: string
     type: object
-  main.BrowserStats:
+  github_com_ScMofeoluwa_minalytics_shared.BrowserStats:
     properties:
       browser:
         type: string
       percentage:
         type: integer
     type: object
-  main.CountryResponse:
+  github_com_ScMofeoluwa_minalytics_shared.CountryResponse:
     properties:
       data:
-        $ref: '#/definitions/main.CountryStats'
+        $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.CountryStats'
       message:
         type: string
     type: object
-  main.CountryStats:
+  github_com_ScMofeoluwa_minalytics_shared.CountryStats:
     properties:
       country:
         type: string
       percentage:
         type: integer
     type: object
-  main.CreateAppRequest:
+  github_com_ScMofeoluwa_minalytics_shared.CreateAppRequest:
     properties:
       name:
         type: string
+    required:
+    - name
     type: object
-  main.DeviceResponse:
+  github_com_ScMofeoluwa_minalytics_shared.DeviceResponse:
     properties:
       data:
-        $ref: '#/definitions/main.DeviceStats'
+        $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.DeviceStats'
       message:
         type: string
     type: object
-  main.DeviceStats:
+  github_com_ScMofeoluwa_minalytics_shared.DeviceStats:
     properties:
       device:
         type: string
       percentage:
         type: integer
     type: object
-  main.OSResponse:
+  github_com_ScMofeoluwa_minalytics_shared.OSResponse:
     properties:
       data:
-        $ref: '#/definitions/main.OSStats'
+        $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.OSStats'
       message:
         type: string
     type: object
-  main.OSStats:
+  github_com_ScMofeoluwa_minalytics_shared.OSStats:
     properties:
       operating_system:
         type: string
       percentage:
         type: integer
     type: object
-  main.PageResponse:
+  github_com_ScMofeoluwa_minalytics_shared.PageResponse:
     properties:
       data:
-        $ref: '#/definitions/main.PageStats'
+        $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.PageStats'
       message:
         type: string
     type: object
-  main.PageStats:
+  github_com_ScMofeoluwa_minalytics_shared.PageStats:
     properties:
       path:
         type: string
       visitor_count:
         type: integer
     type: object
-  main.PageViewResponse:
+  github_com_ScMofeoluwa_minalytics_shared.PageViewResponse:
     properties:
       data:
-        $ref: '#/definitions/main.PageViewStats'
+        $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.PageViewStats'
       message:
         type: string
     type: object
-  main.PageViewStats:
+  github_com_ScMofeoluwa_minalytics_shared.PageViewStats:
     properties:
       time:
         type: string
       views:
         type: integer
     type: object
-  main.ReferralResponse:
+  github_com_ScMofeoluwa_minalytics_shared.ReferralResponse:
     properties:
       data:
-        $ref: '#/definitions/main.ReferralStats'
+        $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.ReferralStats'
       message:
         type: string
     type: object
-  main.ReferralStats:
+  github_com_ScMofeoluwa_minalytics_shared.ReferralStats:
     properties:
       referrer:
         type: string
       visitor_count:
         type: integer
     type: object
-  main.VisitorResponse:
+  github_com_ScMofeoluwa_minalytics_shared.VisitorResponse:
     properties:
       data:
-        $ref: '#/definitions/main.VisitorStats'
+        $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.VisitorStats'
       message:
         type: string
     type: object
-  main.VisitorStats:
+  github_com_ScMofeoluwa_minalytics_shared.VisitorStats:
     properties:
       time:
         type: string
@@ -168,15 +170,15 @@ paths:
         "200":
           description: stats fetched successfully
           schema:
-            $ref: '#/definitions/main.BrowserResponse'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.BrowserResponse'
         "400":
           description: invalid request paramaters
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
         "500":
           description: failed to fetch browsers
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
       security:
       - BearerAuth: []
       summary: Get Browsers
@@ -207,15 +209,15 @@ paths:
         "200":
           description: stats fetched successfully
           schema:
-            $ref: '#/definitions/main.CountryResponse'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.CountryResponse'
         "400":
           description: invalid request paramaters
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
         "500":
           description: failed to fetch countries
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
       security:
       - BearerAuth: []
       summary: Get Countries
@@ -246,15 +248,15 @@ paths:
         "200":
           description: stats fetched successfully
           schema:
-            $ref: '#/definitions/main.DeviceResponse'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.DeviceResponse'
         "400":
           description: invalid request paramaters
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
         "500":
           description: failed to fetch devices
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
       security:
       - BearerAuth: []
       summary: Get Devices
@@ -285,15 +287,15 @@ paths:
         "200":
           description: stats fetched successfully
           schema:
-            $ref: '#/definitions/main.OSResponse'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.OSResponse'
         "400":
           description: invalid request paramaters
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
         "500":
           description: failed to fetch operating systems
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
       security:
       - BearerAuth: []
       summary: Get OS
@@ -324,15 +326,15 @@ paths:
         "200":
           description: stats fetched successfully
           schema:
-            $ref: '#/definitions/main.PageResponse'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.PageResponse'
         "400":
           description: invalid request paramaters
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
         "500":
           description: failed to fetch pages
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
       security:
       - BearerAuth: []
       summary: Get Pages
@@ -363,15 +365,15 @@ paths:
         "200":
           description: stats fetched successfully
           schema:
-            $ref: '#/definitions/main.PageViewResponse'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.PageViewResponse'
         "400":
           description: invalid request paramaters
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
         "500":
           description: failed to fetch visitors
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
       security:
       - BearerAuth: []
       summary: Get PageViews
@@ -402,15 +404,15 @@ paths:
         "200":
           description: stats fetched successfully
           schema:
-            $ref: '#/definitions/main.ReferralResponse'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.ReferralResponse'
         "400":
           description: invalid request paramaters
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
         "500":
           description: failed to fetch referrals
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
       security:
       - BearerAuth: []
       summary: Get Referrals
@@ -433,15 +435,15 @@ paths:
         "200":
           description: Event tracked successfully
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
         "400":
           description: Invalid base64 or JSON data
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
         "500":
           description: Failed to resolve geolocation or track event
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
       summary: Track an event
       tags:
       - Analytics
@@ -470,15 +472,15 @@ paths:
         "200":
           description: stats fetched successfully
           schema:
-            $ref: '#/definitions/main.VisitorResponse'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.VisitorResponse'
         "400":
           description: invalid request paramaters
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
         "500":
           description: failed to fetch visitors
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
       security:
       - BearerAuth: []
       summary: Get Visitors
@@ -495,15 +497,15 @@ paths:
         "200":
           description: apps fetched successfully
           schema:
-            $ref: '#/definitions/main.AppResponse'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.AppResponse'
         "401":
           description: userID not found in context
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
         "500":
           description: failed to fetch apps
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
       security:
       - BearerAuth: []
       summary: Get Apps
@@ -519,26 +521,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/main.CreateAppRequest'
+          $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.CreateAppRequest'
       produces:
       - application/json
       responses:
         "200":
           description: app created successfully
           schema:
-            $ref: '#/definitions/main.AppResponse'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.AppResponse'
         "400":
           description: invalid request body
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
         "401":
           description: userID not found in context
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
         "500":
           description: failed to create app
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
       security:
       - BearerAuth: []
       summary: Create App
@@ -558,22 +560,22 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        "204":
           description: app successfully deleted
           schema:
             type: string
         "400":
           description: invalid request body
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
         "401":
           description: userID not found in context
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
         "500":
           description: failed to delete app
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
       security:
       - BearerAuth: []
       summary: Delete App
@@ -594,26 +596,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/main.CreateAppRequest'
+          $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.CreateAppRequest'
       produces:
       - application/json
       responses:
         "200":
           description: app name successfully changed
           schema:
-            $ref: '#/definitions/main.AppResponse'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.AppResponse'
         "400":
           description: invalid request body
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
         "401":
           description: userID not found in context
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
         "500":
           description: failed to update app
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
       security:
       - BearerAuth: []
       summary: Update App
@@ -641,11 +643,11 @@ paths:
         "400":
           description: Invalid provider or missing provider
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/main.APIStatus'
+            $ref: '#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus'
       summary: User Sign-In
       tags:
       - Auth

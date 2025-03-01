@@ -111,7 +111,7 @@ type RequestPayload struct {
 
 type APIResponse struct {
 	Data       interface{} `json:"data,omitempty"`
-	statusCode int         `json:"-"`
+	StatusCode int         `json:"-"`
 	Message    string      `json:"message"`
 }
 
@@ -172,14 +172,14 @@ type CreateAppRequest struct {
 func NewSuccessResponse(data interface{}, code int, message string) APIResponse {
 	return APIResponse{
 		Data:       data,
-		statusCode: code,
+		StatusCode: code,
 		Message:    message,
 	}
 }
 
 func NewErrorResponse(code int, message string) APIResponse {
 	return APIResponse{
-		statusCode: code,
+		StatusCode: code,
 		Message:    message,
 	}
 }

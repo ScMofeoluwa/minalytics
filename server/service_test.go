@@ -9,6 +9,7 @@ import (
 
 	database "github.com/ScMofeoluwa/minalytics/database/sqlc"
 	"github.com/ScMofeoluwa/minalytics/mocks"
+	types "github.com/ScMofeoluwa/minalytics/shared"
 	"github.com/go-faker/faker/v4"
 	"github.com/google/uuid"
 	"github.com/oschwald/geoip2-golang"
@@ -20,7 +21,7 @@ type ServiceSuite struct {
 	suite.Suite
 	mockRepo *mocks.Querier
 	geoDB    *geoip2.Reader
-	service  AnalyticsService
+	service  types.AnalyticsService
 	ctx      context.Context
 }
 
@@ -62,15 +63,15 @@ func (suite *ServiceSuite) TestSignIn() {
 func (suite *ServiceSuite) TestTrackEvent() {
 	testCases := []struct {
 		name        string
-		data        EventPayload
+		data        types.EventPayload
 		mockSetup   func()
 		expectedErr error
 	}{
 		{
 			name: "event tracked successfully",
-			data: EventPayload{
+			data: types.EventPayload{
 				Type: "pageview",
-				Tracking: TrackingData{
+				Tracking: types.TrackingData{
 					TrackingID: uuid.New(),
 					VisitorID:  faker.UUIDDigit(),
 					Ua:         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
@@ -88,9 +89,9 @@ func (suite *ServiceSuite) TestTrackEvent() {
 		},
 		{
 			name: "app not found",
-			data: EventPayload{
+			data: types.EventPayload{
 				Type: "pageview",
-				Tracking: TrackingData{
+				Tracking: types.TrackingData{
 					TrackingID: uuid.New(),
 					VisitorID:  faker.UUIDDigit(),
 					Ua:         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
@@ -107,9 +108,9 @@ func (suite *ServiceSuite) TestTrackEvent() {
 		},
 		{
 			name: "failed to create event",
-			data: EventPayload{
+			data: types.EventPayload{
 				Type: "pageview",
-				Tracking: TrackingData{
+				Tracking: types.TrackingData{
 					TrackingID: uuid.New(),
 					VisitorID:  faker.UUIDDigit(),
 					Ua:         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
@@ -261,13 +262,13 @@ func (suite *ServiceSuite) TestGetApps() {
 func (suite *ServiceSuite) TestGetReferrals() {
 	testCases := []struct {
 		name        string
-		data        RequestPayload
+		data        types.RequestPayload
 		mockSetup   func()
 		expectedErr error
 	}{
 		{
 			name: "referrals successfully retrieved",
-			data: RequestPayload{
+			data: types.RequestPayload{
 				TrackingID: uuid.New(),
 				StartDate:  sql.NullTime{Time: time.Now().Add(-24 * time.Hour), Valid: true},
 				EndDate:    sql.NullTime{Time: time.Now(), Valid: true},
@@ -288,7 +289,7 @@ func (suite *ServiceSuite) TestGetReferrals() {
 		},
 		{
 			name: "failed to fetch referrals",
-			data: RequestPayload{
+			data: types.RequestPayload{
 				TrackingID: uuid.New(),
 				StartDate:  sql.NullTime{Time: time.Now().Add(-24 * time.Hour), Valid: true},
 				EndDate:    sql.NullTime{Time: time.Now(), Valid: true},
@@ -319,13 +320,13 @@ func (suite *ServiceSuite) TestGetReferrals() {
 func (suite *ServiceSuite) TestGetPages() {
 	testCases := []struct {
 		name        string
-		data        RequestPayload
+		data        types.RequestPayload
 		mockSetup   func()
 		expectedErr error
 	}{
 		{
 			name: "pages successfully retrieved",
-			data: RequestPayload{
+			data: types.RequestPayload{
 				TrackingID: uuid.New(),
 				StartDate:  sql.NullTime{Time: time.Now().Add(-24 * time.Hour), Valid: true},
 				EndDate:    sql.NullTime{Time: time.Now(), Valid: true},
@@ -346,7 +347,7 @@ func (suite *ServiceSuite) TestGetPages() {
 		},
 		{
 			name: "failed to fetch pages",
-			data: RequestPayload{
+			data: types.RequestPayload{
 				TrackingID: uuid.New(),
 				StartDate:  sql.NullTime{Time: time.Now().Add(-24 * time.Hour), Valid: true},
 				EndDate:    sql.NullTime{Time: time.Now(), Valid: true},
@@ -377,13 +378,13 @@ func (suite *ServiceSuite) TestGetPages() {
 func (suite *ServiceSuite) TestGetBrowsers() {
 	testCases := []struct {
 		name        string
-		data        RequestPayload
+		data        types.RequestPayload
 		mockSetup   func()
 		expectedErr error
 	}{
 		{
 			name: "browsers successfully retrieved",
-			data: RequestPayload{
+			data: types.RequestPayload{
 				TrackingID: uuid.New(),
 				StartDate:  sql.NullTime{Time: time.Now().Add(-24 * time.Hour), Valid: true},
 				EndDate:    sql.NullTime{Time: time.Now(), Valid: true},
@@ -404,7 +405,7 @@ func (suite *ServiceSuite) TestGetBrowsers() {
 		},
 		{
 			name: "failed to fetch browsers",
-			data: RequestPayload{
+			data: types.RequestPayload{
 				TrackingID: uuid.New(),
 				StartDate:  sql.NullTime{Time: time.Now().Add(-24 * time.Hour), Valid: true},
 				EndDate:    sql.NullTime{Time: time.Now(), Valid: true},
@@ -435,13 +436,13 @@ func (suite *ServiceSuite) TestGetBrowsers() {
 func (suite *ServiceSuite) TestGetCountries() {
 	testCases := []struct {
 		name        string
-		data        RequestPayload
+		data        types.RequestPayload
 		mockSetup   func()
 		expectedErr error
 	}{
 		{
 			name: "countries successfully retrieved",
-			data: RequestPayload{
+			data: types.RequestPayload{
 				TrackingID: uuid.New(),
 				StartDate:  sql.NullTime{Time: time.Now().Add(-24 * time.Hour), Valid: true},
 				EndDate:    sql.NullTime{Time: time.Now(), Valid: true},
@@ -462,7 +463,7 @@ func (suite *ServiceSuite) TestGetCountries() {
 		},
 		{
 			name: "failed to fetch countries",
-			data: RequestPayload{
+			data: types.RequestPayload{
 				TrackingID: uuid.New(),
 				StartDate:  sql.NullTime{Time: time.Now().Add(-24 * time.Hour), Valid: true},
 				EndDate:    sql.NullTime{Time: time.Now(), Valid: true},
@@ -493,13 +494,13 @@ func (suite *ServiceSuite) TestGetCountries() {
 func (suite *ServiceSuite) TestGetDevices() {
 	testCases := []struct {
 		name        string
-		data        RequestPayload
+		data        types.RequestPayload
 		mockSetup   func()
 		expectedErr error
 	}{
 		{
 			name: "devices successfully retrieved",
-			data: RequestPayload{
+			data: types.RequestPayload{
 				TrackingID: uuid.New(),
 				StartDate:  sql.NullTime{Time: time.Now().Add(-24 * time.Hour), Valid: true},
 				EndDate:    sql.NullTime{Time: time.Now(), Valid: true},
@@ -520,7 +521,7 @@ func (suite *ServiceSuite) TestGetDevices() {
 		},
 		{
 			name: "failed to fetch devices",
-			data: RequestPayload{
+			data: types.RequestPayload{
 				TrackingID: uuid.New(),
 				StartDate:  sql.NullTime{Time: time.Now().Add(-24 * time.Hour), Valid: true},
 				EndDate:    sql.NullTime{Time: time.Now(), Valid: true},
@@ -551,13 +552,13 @@ func (suite *ServiceSuite) TestGetDevices() {
 func (suite *ServiceSuite) TestGetOS() {
 	testCases := []struct {
 		name        string
-		data        RequestPayload
+		data        types.RequestPayload
 		mockSetup   func()
 		expectedErr error
 	}{
 		{
 			name: "os successfully retrieved",
-			data: RequestPayload{
+			data: types.RequestPayload{
 				TrackingID: uuid.New(),
 				StartDate:  sql.NullTime{Time: time.Now().Add(-24 * time.Hour), Valid: true},
 				EndDate:    sql.NullTime{Time: time.Now(), Valid: true},
@@ -578,7 +579,7 @@ func (suite *ServiceSuite) TestGetOS() {
 		},
 		{
 			name: "failed to fetch os",
-			data: RequestPayload{
+			data: types.RequestPayload{
 				TrackingID: uuid.New(),
 				StartDate:  sql.NullTime{Time: time.Now().Add(-24 * time.Hour), Valid: true},
 				EndDate:    sql.NullTime{Time: time.Now(), Valid: true},
@@ -609,13 +610,13 @@ func (suite *ServiceSuite) TestGetOS() {
 func (suite *ServiceSuite) TestGetVisitors() {
 	testCases := []struct {
 		name        string
-		data        RequestPayload
+		data        types.RequestPayload
 		mockSetup   func()
 		expectedErr error
 	}{
 		{
 			name: "visitors successfully retrieved",
-			data: RequestPayload{
+			data: types.RequestPayload{
 				TrackingID: uuid.New(),
 				StartDate:  sql.NullTime{Time: time.Now().Add(-24 * time.Hour), Valid: true},
 				EndDate:    sql.NullTime{Time: time.Now(), Valid: true},
@@ -637,7 +638,7 @@ func (suite *ServiceSuite) TestGetVisitors() {
 		},
 		{
 			name: "failed to fetch visitors",
-			data: RequestPayload{
+			data: types.RequestPayload{
 				TrackingID: uuid.New(),
 				StartDate:  sql.NullTime{Time: time.Now().Add(-24 * time.Hour), Valid: true},
 				EndDate:    sql.NullTime{Time: time.Now(), Valid: true},
@@ -669,13 +670,13 @@ func (suite *ServiceSuite) TestGetVisitors() {
 func (suite *ServiceSuite) TestGetPageViews() {
 	testCases := []struct {
 		name        string
-		data        RequestPayload
+		data        types.RequestPayload
 		mockSetup   func()
 		expectedErr error
 	}{
 		{
 			name: "pageviews successfully retrieved",
-			data: RequestPayload{
+			data: types.RequestPayload{
 				TrackingID: uuid.New(),
 				StartDate:  sql.NullTime{Time: time.Now().Add(-24 * time.Hour), Valid: true},
 				EndDate:    sql.NullTime{Time: time.Now(), Valid: true},
@@ -697,7 +698,7 @@ func (suite *ServiceSuite) TestGetPageViews() {
 		},
 		{
 			name: "failed to fetch pageviews",
-			data: RequestPayload{
+			data: types.RequestPayload{
 				TrackingID: uuid.New(),
 				StartDate:  sql.NullTime{Time: time.Now().Add(-24 * time.Hour), Valid: true},
 				EndDate:    sql.NullTime{Time: time.Now(), Valid: true},
@@ -765,12 +766,12 @@ func (suite *ServiceSuite) TestParseUserAgent() {
 	testCases := []struct {
 		name      string
 		userAgent string
-		expected  *UserAgentDetails
+		expected  *types.UserAgentDetails
 	}{
 		{
 			name:      "Chrome Windows browser",
 			userAgent: "Mozilla/5.0 (Windows; Windows NT 6.2; WOW64) AppleWebKit/533.25 (KHTML, like Gecko) Chrome/53.0.1644.308 Safari/536",
-			expected: &UserAgentDetails{
+			expected: &types.UserAgentDetails{
 				Browser:         "Chrome",
 				Device:          "",
 				OperatingSystem: "Windows",
@@ -779,7 +780,7 @@ func (suite *ServiceSuite) TestParseUserAgent() {
 		{
 			name:      "Chrome iPhone browser",
 			userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 8_4_2; like Mac OS X) AppleWebKit/601.7 (KHTML, like Gecko)  Chrome/48.0.2837.308 Mobile Safari/600.3",
-			expected: &UserAgentDetails{
+			expected: &types.UserAgentDetails{
 				Browser:         "Chrome",
 				Device:          "iPhone",
 				OperatingSystem: "iOS",

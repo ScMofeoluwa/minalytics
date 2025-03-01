@@ -58,19 +58,19 @@ const docTemplate = `{
                     "200": {
                         "description": "stats fetched successfully",
                         "schema": {
-                            "$ref": "#/definitions/main.BrowserResponse"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.BrowserResponse"
                         }
                     },
                     "400": {
                         "description": "invalid request paramaters",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     },
                     "500": {
                         "description": "failed to fetch browsers",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     }
                 }
@@ -119,19 +119,19 @@ const docTemplate = `{
                     "200": {
                         "description": "stats fetched successfully",
                         "schema": {
-                            "$ref": "#/definitions/main.CountryResponse"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.CountryResponse"
                         }
                     },
                     "400": {
                         "description": "invalid request paramaters",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     },
                     "500": {
                         "description": "failed to fetch countries",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     }
                 }
@@ -180,19 +180,19 @@ const docTemplate = `{
                     "200": {
                         "description": "stats fetched successfully",
                         "schema": {
-                            "$ref": "#/definitions/main.DeviceResponse"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.DeviceResponse"
                         }
                     },
                     "400": {
                         "description": "invalid request paramaters",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     },
                     "500": {
                         "description": "failed to fetch devices",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     }
                 }
@@ -241,19 +241,19 @@ const docTemplate = `{
                     "200": {
                         "description": "stats fetched successfully",
                         "schema": {
-                            "$ref": "#/definitions/main.OSResponse"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.OSResponse"
                         }
                     },
                     "400": {
                         "description": "invalid request paramaters",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     },
                     "500": {
                         "description": "failed to fetch operating systems",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     }
                 }
@@ -302,19 +302,19 @@ const docTemplate = `{
                     "200": {
                         "description": "stats fetched successfully",
                         "schema": {
-                            "$ref": "#/definitions/main.PageResponse"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.PageResponse"
                         }
                     },
                     "400": {
                         "description": "invalid request paramaters",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     },
                     "500": {
                         "description": "failed to fetch pages",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     }
                 }
@@ -363,19 +363,19 @@ const docTemplate = `{
                     "200": {
                         "description": "stats fetched successfully",
                         "schema": {
-                            "$ref": "#/definitions/main.PageViewResponse"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.PageViewResponse"
                         }
                     },
                     "400": {
                         "description": "invalid request paramaters",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     },
                     "500": {
                         "description": "failed to fetch visitors",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     }
                 }
@@ -424,19 +424,19 @@ const docTemplate = `{
                     "200": {
                         "description": "stats fetched successfully",
                         "schema": {
-                            "$ref": "#/definitions/main.ReferralResponse"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.ReferralResponse"
                         }
                     },
                     "400": {
                         "description": "invalid request paramaters",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     },
                     "500": {
                         "description": "failed to fetch referrals",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     }
                 }
@@ -468,19 +468,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Event tracked successfully",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     },
                     "400": {
                         "description": "Invalid base64 or JSON data",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     },
                     "500": {
                         "description": "Failed to resolve geolocation or track event",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     }
                 }
@@ -529,19 +529,19 @@ const docTemplate = `{
                     "200": {
                         "description": "stats fetched successfully",
                         "schema": {
-                            "$ref": "#/definitions/main.VisitorResponse"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.VisitorResponse"
                         }
                     },
                     "400": {
                         "description": "invalid request paramaters",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     },
                     "500": {
                         "description": "failed to fetch visitors",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     }
                 }
@@ -569,19 +569,19 @@ const docTemplate = `{
                     "200": {
                         "description": "apps fetched successfully",
                         "schema": {
-                            "$ref": "#/definitions/main.AppResponse"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.AppResponse"
                         }
                     },
                     "401": {
                         "description": "userID not found in context",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     },
                     "500": {
                         "description": "failed to fetch apps",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     }
                 }
@@ -610,7 +610,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.CreateAppRequest"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.CreateAppRequest"
                         }
                     }
                 ],
@@ -618,25 +618,25 @@ const docTemplate = `{
                     "200": {
                         "description": "app created successfully",
                         "schema": {
-                            "$ref": "#/definitions/main.AppResponse"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.AppResponse"
                         }
                     },
                     "400": {
                         "description": "invalid request body",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     },
                     "401": {
                         "description": "userID not found in context",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     },
                     "500": {
                         "description": "failed to create app",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     }
                 }
@@ -670,7 +670,7 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
+                    "204": {
                         "description": "app successfully deleted",
                         "schema": {
                             "type": "string"
@@ -679,19 +679,19 @@ const docTemplate = `{
                     "400": {
                         "description": "invalid request body",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     },
                     "401": {
                         "description": "userID not found in context",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     },
                     "500": {
                         "description": "failed to delete app",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     }
                 }
@@ -727,7 +727,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.CreateAppRequest"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.CreateAppRequest"
                         }
                     }
                 ],
@@ -735,25 +735,25 @@ const docTemplate = `{
                     "200": {
                         "description": "app name successfully changed",
                         "schema": {
-                            "$ref": "#/definitions/main.AppResponse"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.AppResponse"
                         }
                     },
                     "400": {
                         "description": "invalid request body",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     },
                     "401": {
                         "description": "userID not found in context",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     },
                     "500": {
                         "description": "failed to update app",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     }
                 }
@@ -791,13 +791,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid provider or missing provider",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/main.APIStatus"
+                            "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.APIStatus"
                         }
                     }
                 }
@@ -805,7 +805,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "main.APIStatus": {
+        "github_com_ScMofeoluwa_minalytics_shared.APIStatus": {
             "type": "object",
             "properties": {
                 "message": {
@@ -813,7 +813,7 @@ const docTemplate = `{
                 }
             }
         },
-        "main.App": {
+        "github_com_ScMofeoluwa_minalytics_shared.App": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -827,29 +827,29 @@ const docTemplate = `{
                 }
             }
         },
-        "main.AppResponse": {
+        "github_com_ScMofeoluwa_minalytics_shared.AppResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/main.App"
+                    "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.App"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "main.BrowserResponse": {
+        "github_com_ScMofeoluwa_minalytics_shared.BrowserResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/main.BrowserStats"
+                    "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.BrowserStats"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "main.BrowserStats": {
+        "github_com_ScMofeoluwa_minalytics_shared.BrowserStats": {
             "type": "object",
             "properties": {
                 "browser": {
@@ -860,18 +860,18 @@ const docTemplate = `{
                 }
             }
         },
-        "main.CountryResponse": {
+        "github_com_ScMofeoluwa_minalytics_shared.CountryResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/main.CountryStats"
+                    "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.CountryStats"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "main.CountryStats": {
+        "github_com_ScMofeoluwa_minalytics_shared.CountryStats": {
             "type": "object",
             "properties": {
                 "country": {
@@ -882,26 +882,29 @@ const docTemplate = `{
                 }
             }
         },
-        "main.CreateAppRequest": {
+        "github_com_ScMofeoluwa_minalytics_shared.CreateAppRequest": {
             "type": "object",
+            "required": [
+                "name"
+            ],
             "properties": {
                 "name": {
                     "type": "string"
                 }
             }
         },
-        "main.DeviceResponse": {
+        "github_com_ScMofeoluwa_minalytics_shared.DeviceResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/main.DeviceStats"
+                    "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.DeviceStats"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "main.DeviceStats": {
+        "github_com_ScMofeoluwa_minalytics_shared.DeviceStats": {
             "type": "object",
             "properties": {
                 "device": {
@@ -912,18 +915,18 @@ const docTemplate = `{
                 }
             }
         },
-        "main.OSResponse": {
+        "github_com_ScMofeoluwa_minalytics_shared.OSResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/main.OSStats"
+                    "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.OSStats"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "main.OSStats": {
+        "github_com_ScMofeoluwa_minalytics_shared.OSStats": {
             "type": "object",
             "properties": {
                 "operating_system": {
@@ -934,18 +937,18 @@ const docTemplate = `{
                 }
             }
         },
-        "main.PageResponse": {
+        "github_com_ScMofeoluwa_minalytics_shared.PageResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/main.PageStats"
+                    "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.PageStats"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "main.PageStats": {
+        "github_com_ScMofeoluwa_minalytics_shared.PageStats": {
             "type": "object",
             "properties": {
                 "path": {
@@ -956,18 +959,18 @@ const docTemplate = `{
                 }
             }
         },
-        "main.PageViewResponse": {
+        "github_com_ScMofeoluwa_minalytics_shared.PageViewResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/main.PageViewStats"
+                    "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.PageViewStats"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "main.PageViewStats": {
+        "github_com_ScMofeoluwa_minalytics_shared.PageViewStats": {
             "type": "object",
             "properties": {
                 "time": {
@@ -978,18 +981,18 @@ const docTemplate = `{
                 }
             }
         },
-        "main.ReferralResponse": {
+        "github_com_ScMofeoluwa_minalytics_shared.ReferralResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/main.ReferralStats"
+                    "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.ReferralStats"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "main.ReferralStats": {
+        "github_com_ScMofeoluwa_minalytics_shared.ReferralStats": {
             "type": "object",
             "properties": {
                 "referrer": {
@@ -1000,18 +1003,18 @@ const docTemplate = `{
                 }
             }
         },
-        "main.VisitorResponse": {
+        "github_com_ScMofeoluwa_minalytics_shared.VisitorResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/main.VisitorStats"
+                    "$ref": "#/definitions/github_com_ScMofeoluwa_minalytics_shared.VisitorStats"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "main.VisitorStats": {
+        "github_com_ScMofeoluwa_minalytics_shared.VisitorStats": {
             "type": "object",
             "properties": {
                 "time": {

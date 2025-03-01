@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	types "github.com/ScMofeoluwa/minalytics/shared"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -44,7 +45,7 @@ func JWTMiddleware() gin.HandlerFunc {
 	}
 }
 
-func AppAccessMiddleware(s AnalyticsService) gin.HandlerFunc {
+func AppAccessMiddleware(s types.AnalyticsService) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		userID, exists := ctx.Get("userID")
 		if !exists {
@@ -75,9 +76,9 @@ func AppAccessMiddleware(s AnalyticsService) gin.HandlerFunc {
 	}
 }
 
-func WrapHandler(handler func(*gin.Context) APIResponse) gin.HandlerFunc {
+func WrapHandler(handler func(*gin.Context) types.APIResponse) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		response := handler(ctx)
-		ctx.JSON(response.statusCode, response)
+		ctx.JSON(response.StatusCode, response)
 	}
 }
