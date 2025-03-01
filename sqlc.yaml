@@ -21,4 +21,4 @@ sql:
             go_type: "int"
           - column: "events.details"
             go_type:
-              type: "EventDetails"
+              type: "map[string]interface{}"

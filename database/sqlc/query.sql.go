@@ -66,16 +66,16 @@ INSERT INTO events (
 `
 
 type CreateEventParams struct {
-	VisitorID       string       `json:"visitor_id"`
-	TrackingID      uuid.UUID    `json:"tracking_id"`
-	EventType       string       `json:"event_type"`
-	Url             *string      `json:"url"`
-	Referrer        *string      `json:"referrer"`
-	Country         string       `json:"country"`
-	Browser         string       `json:"browser"`
-	Device          string       `json:"device"`
-	OperatingSystem string       `json:"operating_system"`
-	Details         EventDetails `json:"details"`
+	VisitorID       string                 `json:"visitor_id"`
+	TrackingID      uuid.UUID              `json:"tracking_id"`
+	EventType       string                 `json:"event_type"`
+	Url             *string                `json:"url"`
+	Referrer        *string                `json:"referrer"`
+	Country         string                 `json:"country"`
+	Browser         string                 `json:"browser"`
+	Device          string                 `json:"device"`
+	OperatingSystem string                 `json:"operating_system"`
+	Details         map[string]interface{} `json:"details"`
 }
 
 func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error {

@@ -117,7 +117,7 @@ func (suite *DatabaseSuite) createTestEvent(trackingID uuid.UUID) {
 		Browser:         "Safari",
 		Device:          "iPhone",
 		OperatingSystem: "iOS",
-		Details:         EventDetails{},
+		Details:         map[string]interface{}{},
 	})
 	suite.NoError(err)
 }
@@ -259,7 +259,7 @@ func (suite *DatabaseSuite) TestCreateEvent() {
 		Browser:         "Safari",
 		Device:          "iPhone",
 		OperatingSystem: "iOS",
-		Details:         EventDetails{},
+		Details:         map[string]interface{}{},
 	})
 	suite.NoError(err)
 }
