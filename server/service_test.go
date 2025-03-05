@@ -259,6 +259,97 @@ func (suite *ServiceSuite) TestGetApps() {
 	}
 }
 
+func (suite *ServiceSuite) TestUpdateApp() {
+	testCases := []struct {
+		name        string
+		mockSetup   func(userID, trackingID uuid.UUID)
+		expectedErr error
+	}{
+		{
+			name: "app successfully updated",
+			mockSetup: func(userID, trackingID uuid.UUID) {
+				suite.mockRepo.EXPECT().GetAppByTrackingID(mock.Anything, mock.Anything).Return(database.App{UserID: userID}, nil).Once()
+				suite.mockRepo.EXPECT().UpdateApp(mock.Anything, mock.Anything).Return(database.App{TrackingID: trackingID, Name: "updated name"}, nil).Once()
+			},
+			expectedErr: nil,
+		},
+		{
+			name: "failed to update app",
+			mockSetup: func(userID, trackingID uuid.UUID) {
+				suite.mockRepo.EXPECT().GetAppByTrackingID(mock.Anything, mock.Anything).Return(database.App{UserID: userID}, nil).Once()
+				suite.mockRepo.EXPECT().UpdateApp(mock.Anything, mock.Anything).Return(database.App{}, errors.New("failed to update app")).Once()
+			},
+			expectedErr: errors.New("failed to update app"),
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			userID := uuid.New()
+			trackingID := uuid.New()
+			tc.mockSetup(userID, trackingID)
+			app, err := suite.service.UpdateApp(suite.ctx, types.AppPayload{
+				Name:       "updated name",
+				UserID:     userID,
+				TrackingID: trackingID,
+			})
+			if tc.expectedErr != nil {
+				suite.Error(err)
+				suite.Equal(tc.expectedErr.Error(), err.Error())
+				return
+			}
+			suite.NoError(err)
+			suite.Equal("updated name", app.Name)
+			suite.NotEmpty(app.TrackingID)
+			suite.mockRepo.AssertExpectations(suite.T())
+		})
+	}
+}
+
+func (suite *ServiceSuite) TestDeleteApp() {
+	testCases := []struct {
+		name        string
+		mockSetup   func(userID uuid.UUID)
+		expectedErr error
+	}{
+		{
+			name: "app successfully deleted",
+			mockSetup: func(userID uuid.UUID) {
+				suite.mockRepo.EXPECT().GetAppByTrackingID(mock.Anything, mock.Anything).Return(database.App{UserID: userID}, nil).Once()
+				suite.mockRepo.EXPECT().DeleteApp(mock.Anything, mock.Anything).Return(nil).Once()
+			},
+			expectedErr: nil,
+		},
+		{
+			name: "failed to delete app",
+			mockSetup: func(userID uuid.UUID) {
+				suite.mockRepo.EXPECT().GetAppByTrackingID(mock.Anything, mock.Anything).Return(database.App{UserID: userID}, nil).Once()
+				suite.mockRepo.EXPECT().DeleteApp(mock.Anything, mock.Anything).Return(errors.New("failed to delete app")).Once()
+			},
+			expectedErr: errors.New("failed to delete app"),
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			userID := uuid.New()
+			trackingID := uuid.New()
+			tc.mockSetup(userID)
+			err := suite.service.DeleteApp(suite.ctx, types.AppPayload{
+				UserID:     userID,
+				TrackingID: trackingID,
+			})
+			if tc.expectedErr != nil {
+				suite.Error(err)
+				suite.Equal(tc.expectedErr.Error(), err.Error())
+				return
+			}
+			suite.NoError(err)
+			suite.mockRepo.AssertExpectations(suite.T())
+		})
+	}
+}
+
 func (suite *ServiceSuite) TestGetReferrals() {
 	testCases := []struct {
 		name        string

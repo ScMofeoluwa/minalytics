@@ -111,14 +111,14 @@ func (s *analyticsService) GetApps(ctx context.Context, userID uuid.UUID) ([]typ
 	return apps, nil
 }
 
-func (s *analyticsService) UpdateApp(ctx context.Context, name string, trackingID, userID uuid.UUID) (*types.App, error) {
-	if err := s.ValidateAppAccess(ctx, userID, trackingID); err != nil {
+func (s *analyticsService) UpdateApp(ctx context.Context, data types.AppPayload) (*types.App, error) {
+	if err := s.ValidateAppAccess(ctx, data.UserID, data.TrackingID); err != nil {
 		return &types.App{}, err
 	}
 
 	params := database.UpdateAppParams{
-		TrackingID: trackingID,
-		Name:       name,
+		TrackingID: data.TrackingID,
+		Name:       data.Name,
 	}
 
 	app_, err := s.Querier.UpdateApp(ctx, params)
@@ -134,12 +134,12 @@ func (s *analyticsService) UpdateApp(ctx context.Context, name string, trackingI
 	return app, nil
 }
 
-func (s *analyticsService) DeleteApp(ctx context.Context, trackingID, userID uuid.UUID) error {
-	if err := s.ValidateAppAccess(ctx, userID, trackingID); err != nil {
+func (s *analyticsService) DeleteApp(ctx context.Context, data types.AppPayload) error {
+	if err := s.ValidateAppAccess(ctx, data.UserID, data.TrackingID); err != nil {
 		return err
 	}
 
-	return s.Querier.DeleteApp(ctx, trackingID)
+	return s.Querier.DeleteApp(ctx, data.TrackingID)
 }
 
 func (s *analyticsService) GetReferrals(ctx context.Context, data types.RequestPayload) ([]types.ReferralStats, error) {

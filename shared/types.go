@@ -12,8 +12,8 @@ type AnalyticsService interface {
 	SignIn(context.Context, string) (string, error)
 	TrackEvent(context.Context, EventPayload) error
 	CreateApp(context.Context, uuid.UUID, string) (*App, error)
-	UpdateApp(context.Context, string, uuid.UUID, uuid.UUID) (*App, error)
-	DeleteApp(context.Context, uuid.UUID, uuid.UUID) error
+	UpdateApp(context.Context, AppPayload) (*App, error)
+	DeleteApp(context.Context, AppPayload) error
 	GetApps(context.Context, uuid.UUID) ([]App, error)
 	GetReferrals(context.Context, RequestPayload) ([]ReferralStats, error)
 	GetPages(context.Context, RequestPayload) ([]PageStats, error)
@@ -41,6 +41,12 @@ type TrackingData struct {
 type EventPayload struct {
 	Tracking TrackingData `json:"tracking"`
 	Type     string       `json:"type"`
+}
+
+type AppPayload struct {
+	Name       string
+	TrackingID uuid.UUID
+	UserID     uuid.UUID
 }
 
 type GeoLocation struct {
@@ -166,7 +172,7 @@ type PageViewResponse struct {
 }
 
 type CreateAppRequest struct {
-	Name string `json:"name"`
+	Name string `json:"name" binding:"required"`
 }
 
 func NewSuccessResponse(data interface{}, code int, message string) APIResponse {
