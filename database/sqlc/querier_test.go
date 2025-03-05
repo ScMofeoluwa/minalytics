@@ -283,6 +283,27 @@ func (suite *DatabaseSuite) TestGetApps() {
 	suite.Greater(len(apps), 0)
 }
 
+func (suite *DatabaseSuite) TestUpdateApp() {
+	userID := suite.createTestUser()
+	app := suite.createTestApp(userID)
+
+	app_, err := suite.querier.UpdateApp(suite.ctx, UpdateAppParams{
+		TrackingID: app.TrackingID,
+		Name:       "updated name",
+	})
+	suite.NoError(err)
+	suite.Equal(app.ID, app_.ID)
+	suite.Equal("updated name", app_.Name)
+}
+
+func (suite *DatabaseSuite) TestDeleteApp() {
+	userID := suite.createTestUser()
+	app := suite.createTestApp(userID)
+
+	err := suite.querier.DeleteApp(suite.ctx, app.TrackingID)
+	suite.NoError(err)
+}
+
 func (suite *DatabaseSuite) TestGetVisitors() {
 	userID := suite.createTestUser()
 	app := suite.createTestApp(userID)
