@@ -198,7 +198,8 @@ func (h *AnalyticsHandler) UpdateApp(ctx *gin.Context) types.APIResponse {
 		return types.NewErrorResponse(http.StatusBadRequest, "invalid request body")
 	}
 
-	app, err := h.service.UpdateApp(ctx, req.Name, trackingID, user)
+	payload := createAppPayload(req.Name, user, trackingID)
+	app, err := h.service.UpdateApp(ctx, payload)
 	if err != nil {
 		h.logger.Error("failed to update app", zap.Error(err))
 		return types.NewErrorResponse(http.StatusInternalServerError, "failed to update app")
@@ -235,7 +236,8 @@ func (h *AnalyticsHandler) DeleteApp(ctx *gin.Context) types.APIResponse {
 
 	trackingID := uuid.MustParse(trackingID_)
 
-	if err := h.service.DeleteApp(ctx, trackingID, user); err != nil {
+	payload := createAppPayload("", user, trackingID)
+	if err := h.service.DeleteApp(ctx, payload); err != nil {
 		h.logger.Error("failed to delete app", zap.Error(err))
 		return types.NewErrorResponse(http.StatusInternalServerError, "failed to delete app")
 	}
@@ -589,6 +591,14 @@ func createRequestPayload(trackingID uuid.UUID, startDateStr, endDateStr string)
 		StartDate:  sql.NullTime{Time: startDate, Valid: true},
 		EndDate:    sql.NullTime{Time: endDate.Add(24 * time.Hour), Valid: true},
 	}, nil
+}
+
+func createAppPayload(name string, userID, trackingID uuid.UUID) types.AppPayload {
+	return types.AppPayload{
+		Name:       name,
+		UserID:     userID,
+		TrackingID: trackingID,
+	}
 }
 
 func parseDates(dateStrings ...string) ([]time.Time, error) {

@@ -80,6 +80,8 @@ func (s *Server) Start() {
 	{
 		apps.GET("/", WrapHandler(analyticsHandler.GetApps))
 		apps.POST("/", WrapHandler(analyticsHandler.CreateApp))
+		apps.PATCH("/:trackingID", WrapHandler(analyticsHandler.UpdateApp))
+		apps.DELETE("/:trackingID", WrapHandler(analyticsHandler.UpdateApp))
 	}
 
 	analytics := s.router.Group("analytics")
