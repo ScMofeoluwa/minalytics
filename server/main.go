@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/markbates/goth"
+	"github.com/markbates/goth/providers/github"
 	"github.com/markbates/goth/providers/google"
 	"github.com/oschwald/geoip2-golang"
 	"github.com/spf13/viper"
@@ -43,8 +44,11 @@ func (s *Server) Start() {
 		s.config.GoogleClientID,
 		s.config.GoogleClientSecret,
 		s.config.GoogleClientCallbackUrl,
-	),
-	)
+	), github.New(
+		s.config.GithubClientID,
+		s.config.GithubClientSecret,
+		s.config.GithubClientCallbackUrl,
+	))
 
 	geoDB, err := geoip2.Open("database/GeoLite2-City.mmdb")
 	if err != nil {

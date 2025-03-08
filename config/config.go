@@ -8,6 +8,9 @@ type Config struct {
 	GoogleClientID          string `mapstructure:"GOOGLE_CLIENT_ID"`
 	GoogleClientSecret      string `mapstructure:"GOOGLE_CLIENT_SECRET"`
 	GoogleClientCallbackUrl string `mapstructure:"GOOGLE_CLIENT_CALLBACK_URL"`
+	GithubClientID          string `mapstructure:"GITHUB_CLIENT_ID"`
+	GithubClientSecret      string `mapstructure:"GITHUB_CLIENT_SECRET"`
+	GithubClientCallbackUrl string `mapstructure:"GITHUB_CLIENT_CALLBACK_URL"`
 }
 
 func LoadConfig() (config Config, err error) {
