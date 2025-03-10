@@ -1,0 +1,15 @@
+services:
+  timescale:
+    image: timescale/timescaledb:latest-pg17
+    environment:
+      POSTGRES_USER: minalytics
+      POSTGRES_PASSWORD: minalytics
+      POSTGRES_DB: minalytics
+    ports:
+      - "5566:5432"
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
