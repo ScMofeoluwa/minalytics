@@ -4,12 +4,14 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/github"
 	"github.com/markbates/goth/providers/google"
 	"github.com/oschwald/geoip2-golang"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/ScMofeoluwa/minalytics/config"
@@ -40,6 +42,10 @@ func New(config config.Config, logger *zap.Logger) *Server {
 // @in header
 // @name Authorization
 func (s *Server) Start() {
+	if err := s.migrateDB(); err != nil {
+		s.logger.Fatal("Failed to migrate database", zap.Error(err))
+	}
+
 	goth.UseProviders(google.New(
 		s.config.GoogleClientID,
 		s.config.GoogleClientSecret,
@@ -56,7 +62,7 @@ func (s *Server) Start() {
 	}
 	defer geoDB.Close()
 
-	connPool, err := pgxpool.New(context.Background(), viper.GetString("DATABASE_URL"))
+	connPool, err := pgxpool.New(context.Background(), s.config.DatabaseURL)
 	if err != nil {
 		s.logger.Fatal("Failed to create connection pool", zap.Error(err))
 	}
@@ -105,4 +111,16 @@ func (s *Server) Start() {
 	port := s.config.Port
 	s.logger.Info("Starting server", zap.String("port", port))
 	s.router.Run(":" + port)
+}
+
+func (s *Server) migrateDB() error {
+	m, err := migrate.New("file://database/migrations", s.config.DatabaseURL)
+	if err != nil {
+		return err
+	}
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		return err
+	}
+	s.logger.Info("migrations applied successfully")
+	return nil
 }
