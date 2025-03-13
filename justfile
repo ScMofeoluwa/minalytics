@@ -20,8 +20,15 @@ migrate-fix v:
 sqlc:
   sqlc generate
 
+swag:
+  swag init --generalInfo server/main.go --parseDependency --output ./docs
+
 mock:
-  mockery --name=Querier --filename=querier.go --outpkg=mocks --with-expecter=true --recursive=true
+  mockery --name=AnalyticsService --filename=service.go --outpkg=mocks --with-expecter=true --recursive=true
 
 test:
   go test -v ./...
+
+coverage:
+  go test -v $(go list ./... | grep -v -E '/(cmd|mocks|docs)') -covermode=atomic -coverprofile=coverage.out && go tool cover -html=coverage.out
+  # go test ./... -coverprofile=coverage.out && go tool cover -html=coverage.out

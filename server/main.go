@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-migrate/migrate/v4"
@@ -25,6 +26,7 @@ type Server struct {
 	router *gin.Engine
 	config config.Config
 	logger *zap.Logger
+	srv    *http.Server
 }
 
 func New(config config.Config, logger *zap.Logger) *Server {
@@ -110,7 +112,18 @@ func (s *Server) Start() {
 
 	port := s.config.Port
 	s.logger.Info("Starting server", zap.String("port", port))
-	s.router.Run(":" + port)
+	s.srv = &http.Server{
+		Addr:    ":" + port,
+		Handler: s.router,
+	}
+
+	if err := s.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		s.logger.Fatal("listen: %s", zap.Error(err))
+	}
+}
+
+func (s *Server) Shutdown(ctx context.Context) error {
+	return s.srv.Shutdown(ctx)
 }
 
 func (s *Server) migrateDB() error {

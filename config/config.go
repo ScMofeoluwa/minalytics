@@ -1,6 +1,10 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"reflect"
+
+	"github.com/spf13/viper"
+)
 
 type Config struct {
 	DatabaseURL             string `mapstructure:"DATABASE_URL"`
@@ -24,4 +28,18 @@ func LoadConfig() (config Config, err error) {
 
 	err = viper.Unmarshal(&config)
 	return
+}
+
+func bindEnvs(v *viper.Viper, iface interface{}) {
+	ift := reflect.TypeOf(iface)
+	if ift.Kind() == reflect.Pointer {
+		ift = ift.Elem()
+	}
+
+	for i := 0; i < ift.NumField(); i++ {
+		t := ift.Field(i)
+		if tag, ok := t.Tag.Lookup("mapstructure"); ok {
+			v.BindEnv(tag)
+		}
+	}
 }
